@@ -112,7 +112,7 @@ $blog_categories = array(
 									<option value="" disabled selected>Escolha o Provedor de Texto...</option>
 									<option value="gemini">Google Gemini</option>
 									<option value="openai">OpenAI (GPT)</option>
-									<option value="groq">Groq (Llama / Grátis)</option>
+									<option value="groq">Groq (Grátis)</option>
 								</select>
 							</div>
 							<div class="gpg-form-group half">
@@ -423,7 +423,7 @@ $blog_categories = array(
 								<option value="" disabled selected>Escolha o Provedor de Texto...</option>
 								<option value="gemini">Google Gemini</option>
 								<option value="openai">OpenAI (GPT)</option>
-								<option value="groq">Groq (Llama / Grátis)</option>
+								<option value="groq">Groq (Grátis)</option>
 							</select>
 						</div>
 						<div class="gpg-form-group half">
@@ -577,7 +577,7 @@ $blog_categories = array(
 							<div class="gpg-settings-field-box" style="margin-bottom: 0;">
 								<div class="gpg-settings-field-title-row">
 									<label for="gpg-settings-groq-key">
-										<span class="provider-label">Groq API (Llama / Grátis)</span>
+										<span class="provider-label">Groq API (Grátis)</span>
 									</label>
 									<?php if ( ! empty( $masked_groq ) ) : ?>
 										<span class="gpg-status-badge success-badge">✓ Ativo</span>

@@ -36,6 +36,7 @@ Todos os arquivos foram salvos com sucesso no repositório local na pasta [/docs
 | **[BOOTSTRAP_LOCALWP.md](./BOOTSTRAP_LOCALWP.md)** | Orientar o setup completo do ambiente WordPress local no LocalWP. | Pré-requisitos, criação de site, importação do backup SQL, chaves de APIs locais, isolamento de ambientes e segurança. | ~3.0 páginas / 140 linhas |
 | **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** | Base de conhecimento e diagnóstico de falhas comuns de runtime. | Sintomas, diagnóstico e correções de banco de dados, timeouts de APIs, Nonces expirados, SSL e erro 403. | ~3.5 páginas / 155 linhas |
 | **[MAINTENANCE_GUIDE.md](./MAINTENANCE_GUIDE.md)** | Guia operacional para manutenção evolutiva do plugin. | Sequência de leituras recomendadas, criação de Issues do GitHub, Git branching, checklists de auditorias e encerramento de turnos. | ~3.0 páginas / 135 linhas |
+| **[ui_label_update_report.md](./ui_label_update_report.md)** | Relatório de atualização de nomenclatura da interface. | Registro da simplificação visual de labels do provedor Groq no admin PHP. | ~1.5 páginas / 65 linhas |
 | **[technical_documentation_report.md](./technical_documentation_report.md)** | Consolidar a entrega documental atual (este documento). | Sumário de métricas, análise de diagramas e orientações de onboarding. | ~2.0 páginas / 110 linhas |
 
 ---
