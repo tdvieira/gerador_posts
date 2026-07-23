@@ -24,16 +24,19 @@ Com a conclusão desta entrega, os desenvolvedores de software, arquitetos de in
 
 ## 📊 Inventário e Métricas dos Documentos Gerados
 
-Todos os seis arquivos foram salvos com sucesso no repositório local na pasta [/docs](.). Abaixo consta a lista completa, seus objetivos e tamanho estimado:
+Todos os arquivos foram salvos com sucesso no repositório local na pasta [/docs](.). Abaixo consta a lista completa, seus objetivos e tamanho estimado:
 
 | Arquivo e Link Direto | Objetivo Técnico Principal | Conteúdo e Seções Chave | Volume Aprox. (Páginas / Linhas) |
 | :--- | :--- | :--- | :--- |
-| **[DEVELOPMENT_WORKFLOW.md](./DEVELOPMENT_WORKFLOW.md)** | Documentar o fluxo end-to-end de desenvolvimento, controle de qualidade de QA e padrões. | Filosofia SoC/SRP, esteira de 13 fases (do plano ao deploy), critérios de DoD (Definition of Done), WP Coding Standards e checklist de encerramento de milestones. | ~3.5 páginas / 185 linhas |
+| **[DEVELOPMENT_WORKFLOW.md](./DEVELOPMENT_WORKFLOW.md)** | Documentar o fluxo end-to-end de desenvolvimento, controle de qualidade de QA e padrões. | Filosofia SoC/SRP, esteira de 13 fases (do plano ao deploy), critérios de DoD, WP Coding Standards e checklist de encerramento de releases. | ~3.5 páginas / 185 linhas |
 | **[ARCHITECTURE.md](./ARCHITECTURE.md)** | Descrever a infraestrutura técnica, mapeamento de código, segurança e otimização SEO. | Responsabilidades dos scripts e controladores PHP, integrações de texto/imagem de IAs, Transients, Nonces/Capabilities e 4 Diagramas Mermaid. | ~4.5 páginas / 235 linhas |
 | **[RELEASE_PROCESS.md](./RELEASE_PROCESS.md)** | Orientar o processo de versionamento Git, empacotamento do ZIP de produção e release. | Configuração de governança de arquivos Git, exclusões do pacote ZIP, purga de logs de teste, commits semânticos e matriz de decisão (GO/NO-GO). | ~3.0 páginas / 145 linhas |
 | **[AGENTS.md](./AGENTS.md)** | Catalogar os agentes inteligentes de desenvolvimento e os workflows de auditoria. | Matriz de agentes especialistas, workflows de alteração (/plan, /enhance, /debug) e a ordem de execução da esteira de QA. | ~2.5 páginas / 115 linhas |
 | **[DECISIONS.md](./DECISIONS.md)** | Registrar cronologicamente as decisões arquiteturais (padrão ADR). | 8 ADRs detalhando contexto, problema, alternativas de mercado, decisão adotada, justificativa e impacto. | ~4.0 páginas / 215 linhas |
-| **[technical_documentation_report.md](./technical_documentation_report.md)** | Consolidar a entrega documental atual (este documento). | Sumário de métricas, análise de diagramas e orientações de onboarding. | ~2.0 páginas / 100 linhas |
+| **[BOOTSTRAP_LOCALWP.md](./BOOTSTRAP_LOCALWP.md)** | Orientar o setup completo do ambiente WordPress local no LocalWP. | Pré-requisitos, criação de site, importação do backup SQL, chaves de APIs locais, isolamento de ambientes e segurança. | ~3.0 páginas / 140 linhas |
+| **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md)** | Base de conhecimento e diagnóstico de falhas comuns de runtime. | Sintomas, diagnóstico e correções de banco de dados, timeouts de APIs, Nonces expirados, SSL e erro 403. | ~3.5 páginas / 155 linhas |
+| **[MAINTENANCE_GUIDE.md](./MAINTENANCE_GUIDE.md)** | Guia operacional para manutenção evolutiva do plugin. | Sequência de leituras recomendadas, criação de Issues do GitHub, Git branching, checklists de auditorias e encerramento de turnos. | ~3.0 páginas / 135 linhas |
+| **[technical_documentation_report.md](./technical_documentation_report.md)** | Consolidar a entrega documental atual (este documento). | Sumário de métricas, análise de diagramas e orientações de onboarding. | ~2.0 páginas / 110 linhas |
 
 ---
 
@@ -60,8 +63,10 @@ A documentação integra seis diagramas Mermaid interativos inseridos estrategic
 
 ## 🎯 Próximos Passos e Onboarding
 
-Com a consolidação da pasta `/docs`, o repositório está pronto para a incorporação de novos membros do time:
+Com a consolidação da pasta `/docs` preparada para as próximas evoluções de releases, o repositório está pronto para a incorporação de novos membros:
 
-1.  **Leitura Obrigatória:** Todo novo desenvolvedor deve ser direcionado para iniciar pela leitura do [DEVELOPMENT_WORKFLOW.md](./DEVELOPMENT_WORKFLOW.md).
-2.  **Entendimento Arquitetural:** Para programar novas rotinas ou integrar novos modelos de IA, a leitura do [ARCHITECTURE.md](./ARCHITECTURE.md) fornece o mapa de dependências necessário.
-3.  **Validação Pré-Commit:** Certifique-se de que os novos engenheiros conheçam e rodem a auditoria estática do `checklist.py` antes de abrirem Pull Requests.
+1.  **Preparação de Ambiente:** O desenvolvedor deve iniciar configurando sua estação de teste local seguindo o [BOOTSTRAP_LOCALWP.md](./BOOTSTRAP_LOCALWP.md).
+2.  **Leitura do Fluxo:** Compreender o ciclo de desenvolvimento em [DEVELOPMENT_WORKFLOW.md](./DEVELOPMENT_WORKFLOW.md) e o fluxo evolutivo de manutenções em [MAINTENANCE_GUIDE.md](./MAINTENANCE_GUIDE.md).
+3.  **Entendimento Arquitetural:** Estudar a infraestrutura e diagramas Mermaid em [ARCHITECTURE.md](./ARCHITECTURE.md).
+4.  **Resolução de Falhas:** Consultar a base de diagnóstico [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) caso encontre instabilidades no LocalWP, banco ou APIs.
+

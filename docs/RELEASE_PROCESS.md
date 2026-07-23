@@ -31,7 +31,7 @@ graph TD
     G --> H[Push para GitHub Origin]
     H --> I[Criação da Release no GitHub]
     I --> J[Upload Manual do ZIP]
-    J --> K[Abertura de Nova Milestone]
+    J --> K[Planejamento de Versão]
 ```
 
 ---
@@ -132,7 +132,7 @@ O encerramento da release e liberação de pacotes comerciais seguem a classific
 
 ### 🟡 GO COM RESSALVAS (Aprovado com ações corretivas complementares)
 *   **Critérios:** O software atende 100% aos requisitos de qualidade lógica e de segurança do WordPress, mas etapas de infraestrutura externa de rede de desenvolvimento impedem a automatização total (ex: ausência de token de API GitHub CLI para upload do ZIP no terminal, dependendo de upload manual via navegador).
-*   **Ação:** Finalizar manualmente o processo e registrar a ressalva de ambiente nos relatórios de execução da milestone.
+*   **Ação:** Finalizar manualmente o processo e registrar a ressalva de ambiente nos relatórios de execução da release.
 
 ### 🔴 NO-GO (Publicação abortada)
 *   **Critérios:** Qualquer uma das seguintes condições suspende a release:

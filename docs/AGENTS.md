@@ -85,7 +85,7 @@ As auditorias representam as etapas de checagem obrigatórias executadas antes d
 *   **Saída:** Arquivo `functional_test_report.md` detalhando sucessos e evidências de validação.
 
 ### 6. Auditoria de Prontidão (Release Readiness)
-*   **Objetivo:** Determinar a classificação final da milestone como apta para publicação.
+*   **Objetivo:** Determinar a classificação final da release como apta para publicação.
 *   **Ação:** Cruzamento de dados entre o Plano de Testes e o Relatório de Testes. Elaboração da Matriz de Risco e da recomendação técnica final (GO / NO-GO).
 *   **Saída:** Arquivo `release_readiness_report.md`.
 

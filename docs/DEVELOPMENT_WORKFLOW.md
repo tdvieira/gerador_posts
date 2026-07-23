@@ -1,6 +1,6 @@
 # Fluxo de Desenvolvimento (Development Workflow) — v1.0.0
 
-Este documento descreve detalhadamente o processo, a filosofia e os critérios de qualidade adotados no ciclo de desenvolvimento do plugin **Gerador de Posts (IA)**. Ele serve como o guia oficial para que novos engenheiros compreendam desde a concepção de uma funcionalidade até a preparação para uma nova milestone.
+Este documento descreve detalhadamente o processo, a filosofia e os critérios de qualidade adotados no ciclo de desenvolvimento do plugin **Gerador de Posts (IA)**. Ele serve como o guia oficial para que novos engenheiros compreendam desde a concepção de uma funcionalidade até a preparação de uma nova release.
 
 ---
 
@@ -12,7 +12,8 @@ Este documento descreve detalhadamente o processo, a filosofia e os critérios d
 4. [Padrões de Código e Diretrizes (WordPress)](#-padrões-de-código-e-diretrizes-wordpress)
 5. [Controle de Qualidade e Política de QA](#-controle-de-qualidade-e-política-de-qa)
 6. [Convenções de Versionamento (Semantic Versioning)](#-convenções-de-versionamento-semantic-versioning)
-7. [Checklist de Encerramento de Milestones](#-checklist-de-encerramento-de-milestones)
+7. [Checklist de Encerramento de Releases](#-checklist-de-encerramento-de-releases)
+8. [Manuais Operacionais Relacionados](#-manuais-operacionais-relacionados)
 
 ---
 
@@ -44,7 +45,7 @@ graph TD
     I --> J[10. Repository Bootstrap]
     J --> K[11. Release Builder]
     K --> L[12. GitHub Release]
-    L --> M[13. Nova Milestone]
+    L --> M[13. Planejamento de Versão]
 ```
 
 ### Detalhamento das Fases
@@ -106,8 +107,8 @@ Envio dos metadados locais para o GitHub:
 *   Execução do push do commit e da Tag Git para o repositório remoto.
 *   Criação da release na interface do GitHub e upload do anexo ZIP compilado.
 
-#### 13. Nova Milestone
-Abertura da próxima milestone no repositório Git, arquivando a documentação e reiniciando o ciclo de planejamento de novas tarefas.
+#### 13. Planejamento de Versão
+Abertura de um novo ciclo de releases no repositório Git, arquivando a documentação e reiniciando o ciclo de planejamento de novas tarefas.
 
 ---
 
@@ -174,9 +175,9 @@ O plugin utiliza estritamente o sistema **Semantic Versioning (SemVer) 2.0.0**:
 
 ---
 
-## 📋 Checklist de Encerramento de Milestones
+## 📋 Checklist de Encerramento de Releases
 
-Antes de finalizar qualquer milestone e disparar o processo de empacotamento de uma nova versão, execute o script centralizado de validação na raiz do projeto:
+Antes de finalizar qualquer release e disparar o processo de empacotamento de uma nova versão, execute o script centralizado de validação na raiz do projeto:
 
 ```bash
 # Executa a validação completa de QA e conformidade
@@ -190,4 +191,14 @@ O script realizará a validação dos seguintes aspectos:
 4.  **UX e Acessibilidade:** Executa análises básicas.
 5.  **SEO e Otimização:** Garante que metadados Rank Math estão funcionando.
 
-Se o validador retornar qualquer falha crítica, a milestone **não poderá ser fechada** até que a respectiva branch de correção seja mergeada e aprovada pelo pipeline.
+Se o validador retornar qualquer falha crítica, a release **não poderá ser fechada** até que a respectiva branch de correção seja mergeada e aprovada pelo pipeline.
+
+---
+
+## 🔗 Manuais Operacionais Relacionados
+
+Para guias adicionais de inicialização, diagnósticos de erros e manutenção para evoluções futuras, consulte:
+*   **[BOOTSTRAP_LOCALWP.md](./BOOTSTRAP_LOCALWP.md):** Roteiro de setup e preparação do ambiente local do zero.
+*   **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md):** Base de conhecimento para detecção e correção de falhas e timeouts.
+*   **[MAINTENANCE_GUIDE.md](./MAINTENANCE_GUIDE.md):** Guia prático de evolução técnica e rotinas de manutenção.
+
