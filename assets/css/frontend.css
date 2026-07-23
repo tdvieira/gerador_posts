@@ -1,0 +1,208 @@
+/* Stylesheet para renderização de links e Veja Também do Gerador de Posts */
+
+/* Títulos H1 balanceados */
+h1.entry-title,
+.entry-title,
+h1 {
+	text-wrap: balance !important;
+}
+
+/* Títulos H2 e H3 do post */
+.gpg-post-h2,
+.gpg-post-h3 {
+	color: #F2F2F2 !important;
+	font-weight: 500 !important;
+	text-wrap: balance !important;
+	line-height: 1.4em !important;
+}
+
+.gpg-post-h2 {
+	font-size: 26px !important;
+	margin-top: 2.4em !important;
+}
+
+.gpg-post-h3 {
+	font-size: 20px !important;
+	margin-top: 2.0em !important;
+}
+
+/* Estilos de links específicos com strong e underline no hover */
+.entry-content strong a,
+.post-content strong a,
+#gpg-plugin-container strong a {
+	text-decoration: none;
+	color: #fa5b0f;
+	border-bottom: 1px transparent;
+	transition: all 0.2s ease-in-out;
+}
+
+.entry-content strong a:hover,
+.post-content strong a:hover,
+#gpg-plugin-container strong a:hover {
+	text-decoration: underline !important;
+	color: #ff7b37;
+}
+
+/* Espaçamento inferior de listas (bullet points) no corpo do post */
+.entry-content ul:not(.gpg-toc-list):not(.veja ul),
+.entry-content ol,
+.post-content ul:not(.gpg-toc-list):not(.veja ul),
+.post-content ol {
+	margin-bottom: 25px !important;
+}
+
+/* Se um título H2-H6 vier logo após a lista, anula o margin-bottom da lista */
+.entry-content ul:not(.gpg-toc-list) + h2,
+.entry-content ul:not(.gpg-toc-list) + h3,
+.entry-content ul:not(.gpg-toc-list) + h4,
+.entry-content ul:not(.gpg-toc-list) + h5,
+.entry-content ul:not(.gpg-toc-list) + h6,
+.entry-content ol + h2,
+.entry-content ol + h3,
+.entry-content ol + h4,
+.entry-content ol + h5,
+.entry-content ol + h6,
+.post-content ul:not(.gpg-toc-list) + h2,
+.post-content ul:not(.gpg-toc-list) + h3,
+.post-content ul:not(.gpg-toc-list) + h4,
+.post-content ul:not(.gpg-toc-list) + h5,
+.post-content ul:not(.gpg-toc-list) + h6,
+.post-content ol + h2,
+.post-content ol + h3,
+.post-content ol + h4,
+.post-content ol + h5,
+.post-content ol + h6 {
+	margin-top: 2.4em !important;
+}
+
+.entry-content ul:not(.gpg-toc-list):has(+ h2),
+.entry-content ul:not(.gpg-toc-list):has(+ h3),
+.entry-content ul:not(.gpg-toc-list):has(+ h4),
+.entry-content ul:not(.gpg-toc-list):has(+ h5),
+.entry-content ul:not(.gpg-toc-list):has(+ h6),
+.entry-content ol:has(+ h2),
+.entry-content ol:has(+ h3),
+.entry-content ol:has(+ h4),
+.entry-content ol:has(+ h5),
+.entry-content ol:has(+ h6),
+.post-content ul:not(.gpg-toc-list):has(+ h2),
+.post-content ul:not(.gpg-toc-list):has(+ h3),
+.post-content ul:not(.gpg-toc-list):has(+ h4),
+.post-content ul:not(.gpg-toc-list):has(+ h5),
+.post-content ul:not(.gpg-toc-list):has(+ h6),
+.post-content ol:has(+ h2),
+.post-content ol:has(+ h3),
+.post-content ol:has(+ h4),
+.post-content ol:has(+ h5),
+.post-content ol:has(+ h6) {
+	margin-bottom: 0 !important;
+}
+
+/* Seção Veja Também (.veja) */
+.veja {
+	padding: 0;
+	margin: 85px 0 30px 0;
+}
+
+.veja + * {
+	margin-top: 0 !important;
+}
+
+#veja-tambem {
+	font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+	font-size: 18px;
+	font-weight: 700;
+	margin: 0 0 16px 0;
+	color: #f2f2f2 !important;
+	text-transform: none;
+	border: none;
+	padding: 0;
+}
+
+.veja ul {
+	list-style: none !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.veja li {
+	list-style-type: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.veja li a {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 16px;
+	text-decoration: none !important;
+	color: #ABABAB !important;
+	font-weight: 600;
+	font-size: 16px;
+	line-height: 1.4;
+	transition: color 0.2s ease;
+}
+
+.veja li a:hover {
+	color: #fa5b0f !important;
+}
+
+.veja img.imagem {
+	width: 120px;
+	height: 68px;
+	object-fit: cover;
+	border-radius: 6px;
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+	margin: 0 !important;
+	flex-shrink: 0;
+}
+
+.veja li a:hover img.imagem {
+	transform: translateX(2px);
+	box-shadow: 0 4px 12px rgba(250, 91, 15, 0.15);
+}
+
+/* Imagens Gerais com Classe .imagem */
+img.imagem {
+	border-radius: 8px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+	max-width: 100%;
+	height: auto;
+	margin: 20px 0;
+	display: block;
+}
+
+/* Título do Sumário de Conteúdo */
+.gpg-toc-title {
+	margin-top: 50px !important;
+	margin-bottom: 15px !important;
+}
+
+/* Sumário de Conteúdo (TOC) */
+.gpg-toc-list {
+	list-style-type: disc !important;
+	padding-left: 24px !important;
+	margin: 15px 0 !important;
+}
+
+.gpg-toc-list li {
+	margin-bottom: 8px !important;
+	list-style-type: disc !important;
+}
+
+.gpg-toc-list a {
+	color: inherit !important;
+	text-decoration: none !important;
+	font-weight: 500 !important;
+	transition: color 0.2s ease-in-out;
+}
+
+.gpg-toc-list a:hover {
+	color: #fa5b0f !important;
+	text-decoration: underline !important;
+}
