@@ -110,9 +110,9 @@ $blog_categories = array(
 								<label for="gpg-text-provider">Provedor IA Texto <span class="required">*</span></label>
 								<select id="gpg-text-provider" name="text_provider" class="cursor-pointer" required>
 									<option value="" disabled selected>Escolha o Provedor de Texto...</option>
-									<option value="gemini">Google Gemini</option>
-									<option value="openai">OpenAI (GPT)</option>
-									<option value="groq">Groq (Grátis)</option>
+									<option value="gemini">Google API</option>
+									<option value="openai">OpenAI API</option>
+									<option value="groq">Groq API</option>
 								</select>
 							</div>
 							<div class="gpg-form-group half">
@@ -204,8 +204,8 @@ $blog_categories = array(
 								<label for="gpg-image-provider">Provedor IA Imagem <span class="required">*</span></label>
 								<select id="gpg-image-provider" name="image_provider" class="cursor-pointer" required>
 									<option value="" disabled selected>Escolha o Provedor de Imagem...</option>
-									<option value="openai">OpenAI (GPT-2)</option>
-									<option value="gemini">Google (Nano Banana)</option>
+									<option value="openai">OpenAI</option>
+									<option value="gemini">Google</option>
 									<option value="none">Nenhum (Apenas Texto)</option>
 								</select>
 							</div>
@@ -421,17 +421,17 @@ $blog_categories = array(
 							<label for="gpg-batch-text-provider">Provedor IA Texto <span class="required">*</span></label>
 							<select id="gpg-batch-text-provider" class="cursor-pointer" required>
 								<option value="" disabled selected>Escolha o Provedor de Texto...</option>
-								<option value="gemini">Google Gemini</option>
-								<option value="openai">OpenAI (GPT)</option>
-								<option value="groq">Groq (Grátis)</option>
+								<option value="gemini">Google API</option>
+								<option value="openai">OpenAI API</option>
+								<option value="groq">Groq API</option>
 							</select>
 						</div>
 						<div class="gpg-form-group half">
 							<label for="gpg-batch-image-provider">Provedor IA Imagem <span class="required">*</span></label>
 							<select id="gpg-batch-image-provider" class="cursor-pointer" required>
 								<option value="" disabled selected>Escolha o Provedor de Imagem...</option>
-								<option value="openai">OpenAI (GPT-2)</option>
-								<option value="gemini">Google (Nano Banana)</option>
+								<option value="openai">OpenAI</option>
+								<option value="gemini">Google</option>
 								<option value="none">Nenhum</option>
 							</select>
 						</div>
@@ -537,7 +537,7 @@ $blog_categories = array(
 							<div class="gpg-settings-field-box">
 								<div class="gpg-settings-field-title-row">
 									<label for="gpg-settings-gemini-key">
-										<span class="provider-label">Google Gemini API</span>
+										<span class="provider-label">Google API</span>
 									</label>
 									<?php if ( ! empty( $masked_gemini ) ) : ?>
 										<span class="gpg-status-badge success-badge">✓ Ativo</span>
@@ -557,7 +557,7 @@ $blog_categories = array(
 							<div class="gpg-settings-field-box">
 								<div class="gpg-settings-field-title-row">
 									<label for="gpg-settings-openai-key">
-										<span class="provider-label">OpenAI API (GPT)</span>
+										<span class="provider-label">OpenAI API</span>
 									</label>
 									<?php if ( ! empty( $masked_openai ) ) : ?>
 										<span class="gpg-status-badge success-badge">✓ Ativo</span>
@@ -577,7 +577,7 @@ $blog_categories = array(
 							<div class="gpg-settings-field-box" style="margin-bottom: 0;">
 								<div class="gpg-settings-field-title-row">
 									<label for="gpg-settings-groq-key">
-										<span class="provider-label">Groq API (Grátis)</span>
+										<span class="provider-label">Groq API </span>
 									</label>
 									<?php if ( ! empty( $masked_groq ) ) : ?>
 										<span class="gpg-status-badge success-badge">✓ Ativo</span>
@@ -612,7 +612,7 @@ $blog_categories = array(
 							<div class="gpg-settings-field-box">
 								<div class="gpg-settings-field-title-row">
 									<label>
-										<span class="provider-label">Google Imagen 4</span>
+										<span class="provider-label">Google API</span>
 									</label>
 									<?php if ( ! empty( $gemini_key ) ) : ?>
 										<span class="gpg-status-badge success-badge">✓ Ativo</span>
@@ -628,7 +628,7 @@ $blog_categories = array(
 							<div class="gpg-settings-field-box">
 								<div class="gpg-settings-field-title-row">
 									<label>
-										<span class="provider-label">OpenAI DALL-E 3</span>
+										<span class="provider-label">OpenAI API</span>
 									</label>
 									<?php if ( ! empty( $openai_key ) ) : ?>
 										<span class="gpg-status-badge success-badge">✓ Ativo</span>
@@ -644,7 +644,7 @@ $blog_categories = array(
 							<div class="gpg-settings-field-box">
 								<div class="gpg-settings-field-title-row">
 									<label for="gpg-settings-puter-key">
-										<span class="provider-label">Puter.js (Flux / Grátis)</span>
+										<span class="provider-label">Puter.js (Flux)</span>
 									</label>
 									<?php if ( ! empty( $masked_puter ) ) : ?>
 										<span class="gpg-status-badge success-badge">✓ Ativo</span>

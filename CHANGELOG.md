@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.5
+
+### Melhorias
+- Alterada a nomenclatura das APIs nas configurações.
+- "Google Gemini API" → "Google API"
+- "Google Imagen 4" → "Google API"
+- "OpenAI DALL-E 3" → "OpenAI (GPT)"
+
 ## 1.2.4
 
 - Corrigido...
