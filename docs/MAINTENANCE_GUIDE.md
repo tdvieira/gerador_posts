@@ -32,7 +32,7 @@ Este guia orienta engenheiros de software, administradores de sistemas e agentes
 
 Antes de alterar qualquer arquivo de código ou documentação, o desenvolvedor deve ler os seguintes documentos do repositório para carregar o contexto de arquitetura e regras de negócio:
 
-1.  **[project-status.md](../../.agents/memory/project-status.md) (Primeira Leitura):** Entenda o snapshot geral de status, versão estável ativa e progresso de QA do projeto.
+1.  **[project-status.md](../.agents/memory/project-status.md) (Primeira Leitura):** Entenda o snapshot geral de status, versão estável ativa e progresso de QA do projeto.
 2.  **[DEVELOPMENT_WORKFLOW.md](./DEVELOPMENT_WORKFLOW.md):** Revise as regras de escrita de código WordPress (WPCS) e a matriz de DoD (Definition of Done) para aprovação.
 3.  **[ARCHITECTURE.md](./ARCHITECTURE.md):** Compreenda as dependências de componentes, regras de injeção de imagens e SEO, transients e segurança por diagramas Mermaid.
 4.  **[DECISIONS.md](./DECISIONS.md):** Inspecione as 8 decisões arquiteturais (ADRs) vigentes para evitar quebrar premissas de refatorações anteriores.
@@ -92,7 +92,7 @@ Ao preparar o lançamento de uma nova release de versão:
 ## 💾 Atualização da Memória ao Fim de Sessão
 
 Ao final de cada turno de desenvolvimento ou após a publicação de uma Release:
-*   Acesse a pasta de memória persistente dos agentes inteligência artificial em [.agents/memory/](../../.agents/memory/).
+*   Acesse a pasta de memória persistente dos agentes inteligência artificial em [.agents/memory/](../.agents/memory/).
 *   Atualize o snapshot de status em `project-status.md` para refletir as novas versões estáveis, releases futuras, auditorias vencidas e cobertura atual.
 *   Atualize as convenções em `project-conventions.md` e registre novas decisões arquiteturais estruturadas em `tech-decisions.md` caso novas premissas tenham sido adotadas.
 *   Isso garante consistência e continuidade perfeita nas próximas sessões de pair programming.
@@ -107,4 +107,4 @@ Para navegar e aprofundar-se nos fluxos de qualidade e engenharia do Handbook, c
 *   **[RELEASE_PROCESS.md](./RELEASE_PROCESS.md):** Fluxo exaustivo de empacotamento e publicação Git.
 *   **[BOOTSTRAP_LOCALWP.md](./BOOTSTRAP_LOCALWP.md):** Guia de inicialização e setup do LocalWP do zero.
 *   **[TROUBLESHOOTING.md](./TROUBLESHOOTING.md):** Diagnósticos de falhas operacionais e contenções.
-*   **[project-status.md](../../.agents/memory/project-status.md):** Snapshot de status atual consolidado do projeto.
+*   **[project-status.md](../.agents/memory/project-status.md):** Snapshot de status atual consolidado do projeto.

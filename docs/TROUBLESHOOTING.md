@@ -51,7 +51,7 @@ Este guia atua como a base de conhecimento consolidada para diagnóstico, conten
     define('WP_ENV', 'local');
     ```
 *   **Prevenção:** Nunca defina `WP_ENV` como `'production'` em máquinas físicas de desenvolvimento local.
-*   **Referências Cruzadas:** Consulte o [tech-decisions.md](../../.agents/memory/tech-decisions.md) (ADR 05) para detalhes sobre a decisão de validação flexível de SSL.
+*   **Referências Cruzadas:** Consulte o [tech-decisions.md](../.agents/memory/tech-decisions.md) (ADR 05) para detalhes sobre a decisão de validação flexível de SSL.
 
 ### 2. Erros de Limite de Cota (HTTP 429) ou Timeout (HTTP 503 / 504)
 *   **Sintoma:** O painel exibe um alerta de erro de timeout ou lentidão excessiva durante a geração assíncrona do post.
