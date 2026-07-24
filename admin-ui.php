@@ -204,8 +204,8 @@ $blog_categories = array(
 								<label for="gpg-image-provider">Provedor IA Imagem <span class="required">*</span></label>
 								<select id="gpg-image-provider" name="image_provider" class="cursor-pointer" required>
 									<option value="" disabled selected>Escolha o Provedor de Imagem...</option>
-									<option value="openai">OpenAI</option>
-									<option value="gemini">Google</option>
+									<option value="openai">OpenAI API</option>
+									<option value="gemini">Google API</option>
 									<option value="none">Nenhum (Apenas Texto)</option>
 								</select>
 							</div>
@@ -430,8 +430,8 @@ $blog_categories = array(
 							<label for="gpg-batch-image-provider">Provedor IA Imagem <span class="required">*</span></label>
 							<select id="gpg-batch-image-provider" class="cursor-pointer" required>
 								<option value="" disabled selected>Escolha o Provedor de Imagem...</option>
-								<option value="openai">OpenAI</option>
-								<option value="gemini">Google</option>
+								<option value="openai">OpenAI API</option>
+								<option value="gemini">Google API</option>
 								<option value="none">Nenhum</option>
 							</select>
 						</div>

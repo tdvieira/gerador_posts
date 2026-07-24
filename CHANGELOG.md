@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.6
+
+### Melhorias
+- Corrigida alteração da nomenclatura das APIs nas configurações.
+- "Google" → "Google API"
+- "OpenAI" → "OpenAI API"
+
 ## 1.2.5
 
 ### Melhorias
