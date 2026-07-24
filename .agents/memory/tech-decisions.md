@@ -53,3 +53,10 @@ Este arquivo registra o diário cronológico de Decisões de Arquitetura de Soft
 *   **Contexto:** Pasta externa de agentes (`public/.agents/`) é volátil a resets locais de workspace do programador e dificulta o empacotamento.
 *   **Decisão:** Migrar as regras normativas e a memória técnica permanente para dentro do repositório Git do plugin sob `.agents/`.
 *   **Impacto:** Autossuficiência e versionamento da arquitetura assistida por IA.
+
+### ADR 09: Hardening Normativo e Congelamento (v2.2)
+*   **Status:** Aprovado
+*   **Contexto:** O incidente de perda de arquivos locais da infraestrutura assistida por IA devido à ausência de commits no Git local expôs a necessidade de blindar fisicamente a governança permanente e o histórico da arquitetura contra exclusões acidentais.
+*   **Decisão:** Institucionalizar os Princípios Arquiteturais 13 (Persistence Validation Principle) e 14 (Incremental Validation Principle) no manual supremo de governança do projeto, e declarar oficialmente o ecossistema `.agents` v2.2 em estado **Architecture Frozen** (Congelamento Arquitetural), blindando a taxonomia de diretórios contra novas alterações estruturais.
+*   **Impacto:** Segurança contra perdas físicas de metadados operacionais e estabelecimento de base permanente inalterada para evoluções lógicas subsequentes de código.
+

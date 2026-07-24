@@ -31,3 +31,8 @@ Este documento atua como o mapa de navegação e taxonomia da infraestrutura `.a
 ### 5. `reports/`
 *   **Finalidade:** Agrupar os relatórios de execuções de testes, vulnerabilidades e qualidade de código.
 *   **Tipo de Conhecimento:** Artefatos de saída das ferramentas de validação de QA.
+
+### 6. `docs/`
+*   **Finalidade:** Armazenar os documentos institucionais e o histórico cronológico de evoluções e decisões de design da arquitetura de suporte a IA.
+*   **Tipo de Conhecimento:** Registro histórico e retrospectivas de design (como [ARCHITECTURE_HISTORY.md](./docs/ARCHITECTURE_HISTORY.md)).
+

@@ -21,3 +21,11 @@ As normas permanentes, a hierarquia de autoridade e as regras sintáticas de cad
 *   **Domínio de Memória:** [memory.md](./rules/memory.md) (Roteamento de contexto e carregamento sequencial).
 *   **Domínio de Workflows:** [workflows.md](./rules/workflows.md) (Normas de execução de scripts de QA e isolamento de logs).
 *   **Domínio de Prompts:** [prompts.md](./rules/prompts.md) (Regras de modularidade e reusabilidade de prompts).
+
+---
+
+## 📄 Histórico e Documentação de IA
+
+*   **Documentação Institucional:** [.agents/docs/](./docs/) (Diretório contendo o diário de evolução histórica da arquitetura).
+*   **Diário de Evolução da Arquitetura:** [ARCHITECTURE_HISTORY.md](./docs/ARCHITECTURE_HISTORY.md) (Registro cronológico de fases, incidentes e lições aprendidas).
+
