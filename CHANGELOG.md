@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.4
+
+- Corrigido...
+- Melhorado...
+
 ## 1.2.3
 
 - Corrigido...

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Gerador de Posts
  * Description: Cria posts estruturados seguindo o padrão do blog, gera até 2 imagens 16:9, vincula SEO (Rank Math) e agenda a publicação em lote.
- * Version: 1.2.3
+ * Version: 1.2.4
  * Author: Thiago Vieira
  * Text Domain: gerador-posts-gemini
  */
@@ -11,7 +11,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-require_once plugin_dir_path(__FILE__) . 'includes/updater.php';
+// require_once plugin_dir_path(__FILE__) . 'includes/updater.php';
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/updater.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/updater.php';
+} else {
+    add_action('admin_notices', function () {
+        echo '<div class="notice notice-error"><p>Arquivo includes/updater.php não encontrado.</p></div>';
+    });
+}
 
 // Remover chave obsoleta do Pollinations do banco de dados ao carregar o plugin
 if ( get_option( 'gpg_pollinations_api_key' ) !== false ) {
