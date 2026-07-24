@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Gerador de Posts
  * Description: Cria posts estruturados seguindo o padrão do blog, gera até 2 imagens 16:9, vincula SEO (Rank Math) e agenda a publicação em lote.
- * Version: 1.2.1
+ * Version: 1.2.2
  * Author: Thiago Vieira
  * Text Domain: gerador-posts-gemini
  */
@@ -10,6 +10,8 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
+
+require_once plugin_dir_path(__FILE__) . 'includes/updater.php';
 
 // Remover chave obsoleta do Pollinations do banco de dados ao carregar o plugin
 if ( get_option( 'gpg_pollinations_api_key' ) !== false ) {
@@ -44,7 +46,7 @@ function gpg_ensure_categories_exist() {
 add_action( 'wp_enqueue_scripts', 'gpg_enqueue_frontend_styles' );
 
 function gpg_enqueue_frontend_styles() {
-	wp_enqueue_style( 'gerador-posts-frontend', plugin_dir_url( __FILE__ ) . 'assets/css/frontend.css', array(), '1.2.1' );
+	wp_enqueue_style( 'gerador-posts-frontend', plugin_dir_url( __FILE__ ) . 'assets/css/frontend.css', array(), '1.2.2' );
 }
 
 // Carregar estilos no admin apenas na página do plugin
@@ -52,13 +54,13 @@ add_action( 'admin_enqueue_scripts', 'gpg_enqueue_admin_styles' );
 
 function gpg_enqueue_admin_styles( $hook ) {
 	if ( 'posts_page_gerador-posts-gemini' === $hook ) {
-		wp_enqueue_style( 'gerador-posts-admin-css', plugin_dir_url( __FILE__ ) . 'assets/css/admin.css', array(), '1.2.1' );
+		wp_enqueue_style( 'gerador-posts-admin-css', plugin_dir_url( __FILE__ ) . 'assets/css/admin.css', array(), '1.2.2' );
 		
 		// Enfileirar biblioteca Puter.js de forma nativa
 		wp_enqueue_script( 'puter-js', 'https://js.puter.com/v2/', array(), '2.0.0', false );
 		
 		// Enfileirar JavaScript administrativo com dependência do jQuery e Puter.js
-		wp_enqueue_script( 'gerador-posts-admin-js', plugin_dir_url( __FILE__ ) . 'assets/js/admin.js', array( 'jquery', 'puter-js' ), '1.2.1', true );
+		wp_enqueue_script( 'gerador-posts-admin-js', plugin_dir_url( __FILE__ ) . 'assets/js/admin.js', array( 'jquery', 'puter-js' ), '1.2.2', true );
 		
 		// Gerar o HTML das categorias para passar ao JS
 		$blog_categories = array(

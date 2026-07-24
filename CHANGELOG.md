@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.2
+
+- Corrigido...
+- Adicionado...
+- Melhorado...
+
 ## [1.2.1] - 2026-07-24
 
 ### Corrigido
