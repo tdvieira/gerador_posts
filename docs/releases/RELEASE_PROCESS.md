@@ -85,6 +85,13 @@ Antes de fechar o zip, o Release Builder deve verificar se arquivos de depuraç�
 *   `release_readiness_report.md` ou `release_certification_report.md`
 *   `autologin.php` (script de bypass de login local)
 
+### 3. Validação Prática de Instalação e Ativação no WordPress
+Como critério obrigatório e intransponível de homologação, o Release Builder deve testar fisicamente o pacote ZIP final gerado em `build/gerador-posts-gemini.zip` em um ambiente WordPress ativo (local ou sandbox), executando as seguintes ações de validação:
+*   **Instalação Limpa:** Fazer o upload manual do ZIP na seção de Plugins e verificar se a instalação é concluída com sucesso.
+*   **Atualização de Versão:** Instalar a versão anterior e aplicar a atualização por cima usando o novo ZIP, certificando-se de que a estrutura e opções antigas persistam no banco de dados.
+*   **Ativação e Execução:** Ativar o plugin e navegar no painel administrativo. O teste deve provar que não há o erro de ativação "O arquivo do plugin não existe" e nenhuma regressão sintática ou funcional.
+Nenhuma Release será homologada para publicação oficial sem preencher este requisito prático de aprovação.
+
 ---
 
 ## 🏷️ Procedimento de Git e Tagging Semântico
@@ -110,7 +117,11 @@ git push origin master --tags
 ## 📦 Empacotamento e Upload Manual (GitHub)
 
 1.  **Geração do ZIP de Produção:**
-    *   O ZIP deve ser gerado obrigatoriamente dentro da pasta `build/` na raiz do repositório, contendo a pasta `/gerador-posts-gemini/` e seus subdiretórios funcionais. É terminantemente proibido manter ou gerar arquivos ZIP na raiz do repositório.
+    *   O ZIP deve ser gerado de forma totalmente automatizada rodando o script de build contido no repositório. Abra o console do PowerShell na raiz do projeto e execute:
+        ```powershell
+        powershell -ExecutionPolicy Bypass -File scripts/build_release.ps1
+        ```
+    *   O ZIP será criado de forma limpa sob a pasta `build/` contendo unicamente a pasta do plugin `/gerador-posts-gemini/` e seus subdiretórios de produção. É terminantemente proibido manter ou gerar arquivos ZIP na raiz do repositório.
     *   Caminho de saída: `build/gerador-posts-gemini.zip`.
 2.  **Upload e Publicação Remota:**
     *   Como tokens locais de CLI (`gh`) podem expirar ou não estar configurados no terminal de desenvolvimento local, a publicação final deve ser complementada manualmente no painel do GitHub.

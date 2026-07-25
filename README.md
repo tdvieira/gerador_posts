@@ -118,9 +118,16 @@ Para manter a organização do código-fonte e do acervo documental de desenvolv
 
 ## 🚀 Release
 
-O pacote oficial de distribuição e instalação do plugin é gerado em **`build/gerador-posts-gemini.zip`**. 
+O pacote oficial de distribuição e instalação do plugin é gerado em **`build/gerador-posts-gemini.zip`**.
 
-*   **Instalação e GitHub:** Este arquivo ZIP é o único artefato utilizado para a instalação manual do plugin no painel do WordPress e também o arquivo oficial anexado na página de Releases do repositório no GitHub.
+### Geração de Build Local
+Qualquer desenvolvedor pode gerar o pacote de distribuição localmente de forma idêntica e sem etapas manuais executando o script de automação contido no repositório. Para isso, abra o console do PowerShell na raiz do projeto e rode:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/build_release.ps1
+```
+
+*   **Instalação e GitHub:** Este arquivo ZIP gerado é o único artefato utilizado para a instalação manual do plugin no painel do WordPress e também o arquivo oficial anexado na página de Releases do repositório no GitHub.
 *   **Propósito da Pasta build/:** O diretório `build/` concentra exclusivamente os artefatos temporários de distribuição e builds executados, garantindo que a raiz do projeto e o código de produção permaneçam organizados e livres de arquivos compactados pesados.
 
 ---
