@@ -21,14 +21,14 @@ A arquitetura v2 resolveu esses problemas acoplando fisicamente a pasta `.agents
 *   **Fase 1 (Estrutura Inicial):** Inicialização das pastas de suporte `.agents/memory/`, `.agents/rules/`, `.agents/workflows/`, `.agents/prompts/` e `.agents/reports/`.
 *   **Fase 2 (Governança Oficial):** Criação das 6 regras de domínio (`rules/`) e estabelecimento formal da **Hierarchy of Authority** sob a liderança do [project-governance.md](../rules/project-governance.md).
 *   **Fase 2.1 (Limpeza Arquitetural):** Introdução do *Princípio 12 (Princípio da Limpeza Arquitetural)*, exigindo o saneamento de arquivos marcadores `.gitkeep` e de arquivos temporários ao final de cada iteração.
-*   **Fase 3A/B (Portabilidade de Memória):** Inventário da memória legada e transporte de snapshots essenciais para a pasta `.agents/memory/`, recalculando caminhos relativos e eliminando premissas de marcos (Milestones) em favor de Releases do Git.
+*   **Fase 3A/B (Portabilidade de Memória):** Inventário da memória legada e transporte de snapshots essenciais para a pasta `.agents/memory/`, recalculando caminhos relativos e eliminando premissas de marcos em favor de Releases do Git.
 *   **Fase 4A/B (Modelos de Orquestração):** Desenvolvimento de workflows e prompts reutilizáveis genéricos de suporte, seguidos da instanciação de roteiros operacionais específicos de hooks, de transientes e de QA do plugin.
 *   **Fase 5 (Integração do Handbook):** Atualização dos manuais de engenharia na pasta `/docs/` para sincronizar os links com a nova infraestrutura.
 *   **Fase 6 (Auditoria Final):** Varredura estática de links e atestado de prontidão para merge da branch `feature/agents-v2`.
 
 ### Evolutions da Versão v2.1
-*   **Evolution 1 (Workflow Permanente):** Recomendado no relatório final da Fase 6, foi implementado o workflow definitivo [audit-execution.md](../workflows/audit-execution.md), permitindo a execução de auditorias arquiteturais manuais independentes do AG Kit.
-*   **Evolution 2 (Bootstrap Soberano):** Criação do arquivo permanente [AGENT.md](../../AGENT.md) na raiz do plugin como ponto de entrada obrigatório e soberano de onboarding para qualquer agente de IA que opere no projeto.
+*   **Evolution 1 (Fluxo de Trabalho Permanente):** Recomendado no relatório final da Fase 6, foi implementado o fluxo de trabalho definitivo [audit-execution.md](../workflows/audit-execution.md), permitindo a execução de auditorias arquiteturais manuais independentes do AG Kit.
+*   **Evolution 2 (Inicializador Técnico):** Criação do arquivo permanente [AGENT.md](../../AGENT.md) na raiz do plugin como ponto de entrada obrigatório de integração para qualquer agente de IA que opere no projeto.
 
 ---
 

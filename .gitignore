@@ -33,3 +33,7 @@ composer.lock
 *.log
 /tmp/
 /scratch/
+
+# Build artifacts
+/build/*
+!/build/.gitkeep

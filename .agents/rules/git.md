@@ -1,4 +1,4 @@
-# Regras do Domínio Git e Versionamento (Git Domain Rules)
+# Regras do Domínio Git e Versionamento (Regras do Domínio Git)
 
 Este documento define as diretrizes normativas para versionamento, nomenclatura de branches, mensagens de commit e segurança do histórico de desenvolvimento do repositório.
 
@@ -6,7 +6,7 @@ Este documento define as diretrizes normativas para versionamento, nomenclatura 
 
 ## 🚦 1. Estrutura de Ramificação (Branching Strategy)
 
-*   **Rastreabilidade por Issues:** O ciclo de desenvolvimento deve ser estruturado em torno de Issues do GitHub, abandonando-se o modelo de milestones rígidos no core do repositório.
+*   **Rastreabilidade por Issues:** O ciclo de desenvolvimento deve ser estruturado em torno de Issues do GitHub, abandonando-se o modelo de marcos rígidos no core do repositório.
 *   **Prefixos Oficiais de Branches:**
     *   `feature/nome-da-feature` - Novas funcionalidades ou evoluções da arquitetura.
     *   `fix/nome-do-bug` - Correções de defeitos operacionais ou segurança.

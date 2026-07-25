@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.0.0 - 2026-07-24
+
+### Adicionado (Refatoração da Camada de IA)
+- **Nova Arquitetura Orientada a Objetos (OOP):** Migração completa de lógicas procedurais para classes robustas sob o namespace `GPG`.
+- **Autoloader PSR-4 Nativo:** Implementado o carregador automático no ponto de entrada, mapeando de forma exata todas as classes sob `includes/`.
+- **Contratos e Provedores de IA:** Criadas interfaces (`TextProviderInterface`, `ImageProviderInterface`), classe base comum (`AbstractProvider`) e provedores dedicados (`GeminiProvider`, `OpenAIProvider`, `GroqProvider`, `GoogleImagenProvider` e `DallEProvider`).
+- **PromptBuilder Dedicado:** Centralizada a construção lógica e estilização dos prompts de texto e imagens, removendo formatação do escopo dos controladores.
+- **Serviço de Mídia Desacoplado:** Centralização de downloads seguros contra SSRF, conversões de formato WebP de alta fidelidade e cortes Retina em `MediaProcessor`.
+- **Controlador AJAX Isolado:** Criada a classe `AjaxController` para tratar e sanitizar todas as chamadas de interface do plugin, garantindo validações de nonces e capabilities nativas do WordPress.
+- **Centralização de Configurações:** Criada a classe `Config` para isolar a gravação e a recuperação transparente de credenciais e opções no banco de dados.
+
 ## 1.2.6
 
 ### Melhorias

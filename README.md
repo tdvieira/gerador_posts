@@ -103,6 +103,26 @@ gerador-posts-gemini/
 2.  Selecione os provedores de texto/imagem e insira uma lista de temas (um por linha).
 3.  Clique em **Iniciar Lote**. Acompanhe visualmente o pipeline sequencial de progresso por tema (Interpretação, Segurança, Escrita, Revisão, Imagens, Publicação e Conclusão).
 
+## 📂 Estrutura do Projeto
+
+Para manter a organização do código-fonte e do acervo documental de desenvolvimento, o repositório é segmentado da seguinte forma:
+
+*   **`build/`**: Pasta reservada para conter os artefatos de build consolidados (como o pacote ZIP de distribuição oficial do plugin). Nenhum arquivo ZIP de distribuição deve residir na raiz.
+*   **`docs/`**: Subpasta oficial contendo toda a documentação técnica, manuais operacionais e relatórios de conformidade e qualidade do plugin (como arquitetura, governança, testes de QA, relatórios de releases e históricos). É o repositório documental público e final do projeto.
+*   **`.agents/`**: Pasta privada contendo regras internas, esquemas de memória persistente, ganchos de automação de tarefas e prompts de uso exclusivo do framework **Antigravity** e dos agentes de IA durante a fase de desenvolvimento técnico do plugin. Não compõe a distribuição de produção.
+*   **`assets/`**: Contém folhas de estilo css e JavaScript administrativo do painel.
+*   **`includes/`**: Armazena as classes PHP divididas de forma modular e seguindo o autoloader PSR-4 (`Core`, `AI`, `Controllers`, `Services`, `Providers`).
+*   **`vendor/`**: Guarda dependências necessárias ao plugin em produção, como a biblioteca `plugin-update-checker` para atualizações automáticas via GitHub.
+
+---
+
+## 🚀 Release
+
+O pacote oficial de distribuição e instalação do plugin é gerado em **`build/gerador-posts-gemini.zip`**. 
+
+*   **Instalação e GitHub:** Este arquivo ZIP é o único artefato utilizado para a instalação manual do plugin no painel do WordPress e também o arquivo oficial anexado na página de Releases do repositório no GitHub.
+*   **Propósito da Pasta build/:** O diretório `build/` concentra exclusivamente os artefatos temporários de distribuição e builds executados, garantindo que a raiz do projeto e o código de produção permaneçam organizados e livres de arquivos compactados pesados.
+
 ---
 
 ## 📄 Licença

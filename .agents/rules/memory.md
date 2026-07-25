@@ -17,6 +17,6 @@ Este documento estabelece as diretrizes normativas para leitura, gravação e ma
 
 ## 🧹 2. Manutenção e Higienização de Metadados
 
-*   **Proibição de Termos Obsoletos:** É vedada a utilização do termo "Milestone" na memória permanente ativa. Todo o ciclo iterativo deve ser documentado sob "Releases" e "Issues".
+*   **Proibição de Termos Obsoletos:** Todo o ciclo de desenvolvimento deve ser documentado e catalogado exclusivamente sob a nomenclatura oficial de "Phases", "Releases" e "Issues", sendo vedada a utilização de termos obsoletos de marcos temporários na memória persistente ativa.
 *   **Sincronização ao Fim de Turnos:** O snapshot de status deve ser atualizado de forma incremental sempre que uma tarefa de desenvolvimento for finalizada, registrando o novo estado físico do repositório no `project-status.md`.
 *   **Decisões Técnicas (ADRs):** Novas decisões de arquitetura de software de grande relevância devem ser formalizadas no diário cronológico `tech-decisions.md` para carregar o contexto conceitual das decisões do projeto.
