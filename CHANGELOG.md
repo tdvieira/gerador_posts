@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.1 - 2026-07-26
+
+### Adicionado
+- Atualização e consolidação da Release v2.0.1.
+
 ## 2.0.0 - 2026-07-24
 
 ### Adicionado (Refatoração da Camada de IA)

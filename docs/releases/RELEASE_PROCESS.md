@@ -1,4 +1,4 @@
-# Processo de Release (Release Process Manual) — v1.0.0
+# Processo de Release (Release Process Manual) — v2.0.1
 
 Este manual descreve o procedimento operacional padrão para geração, validação e publicação de novas versões do plugin **Gerador de Posts (IA)**. Ele estabelece os critérios de segurança e governança para empacotamento da distribuição.
 
@@ -7,7 +7,7 @@ Este manual descreve o procedimento operacional padrão para geração, validaç
 ## 📖 Índice
 
 1. [Visão Geral do Fluxo de Release](#-visão-geral-do-fluxo-de-release)
-2. [Fases da Preparação da Versão](#-fases-da-preparação-da-versão)
+2. [Pipeline Oficial de Release](#-pipeline-oficial-de-release)
 3. [Repository Bootstrap e Governança](#-repository-bootstrap-e-governança)
 4. [Distribution Validation (Validação de Distribuição)](#-distribution-validation-validação-de-distribuição)
 5. [Procedimento de Git e Tagging Semântico](#-procedimento-de-git-e-tagging-semântico)
@@ -22,34 +22,40 @@ O fluxo de publicação de uma nova versão do plugin segue uma trilha linear ri
 
 ```mermaid
 graph TD
-    A[Homologação Concluída] --> B[Auditoria de Prontidão]
-    B --> C[Repository Bootstrap]
-    C --> D[Geração do ZIP de Produção]
-    D --> E[Validação de Distribuição]
-    E --> F[Commit de Release Git]
-    F --> G[Tagging Oficial v1.0.0]
-    G --> H[Push para GitHub Origin]
-    H --> I[Criação da Release no GitHub]
-    I --> J[Upload Manual do ZIP]
-    J --> K[Planejamento de Versão]
+    A[Homologação Concluída] --> B[Passo 1: prepare_release.ps1 - Valida e Sincroniza Versão]
+    B --> C[Passo 2: build_release.ps1 - Executado Automaticamente - ZIP]
+    C --> D[Validação Prática de Instalação e Ativação no WP]
+    D --> E[Passo 3: publish_release.ps1 - Publicação Remota - Próxima Etapa]
 ```
 
 ---
 
-## 🔍 Fases da Preparação da Versão
+## 🛠️ Pipeline Oficial de Release
 
-O engenheiro de release (Release Builder) deve executar o checklist de preparação antes de avançar para o Git:
+O processo de empacotamento e publicação do plugin é estruturado no **Pipeline Oficial de Release**, composto por três scripts especializados sob o princípio da responsabilidade única (SRP), garantindo reprodutibilidade completa e auditável:
 
-1.  **Cabeçalho do Plugin (`gerador-posts-gemini.php`):**
-    *   Verificar se a tag `Version:` no cabeçalho do plugin corresponde exatamente à versão de publicação (`1.0.0`).
-    *   Verificar se as tags do WordPress (`Requires at least`, `Tested up to`, `Requires PHP`) estão atualizadas de acordo com a matriz de compatibilidade do projeto.
-2.  **Sincronização do Changelog:**
-    *   Validar se o arquivo `CHANGELOG.md` descreve com precisão as alterações da versão sob as seções `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed` e `Security`.
-3.  **Execução do Script de Verificação Completo:**
-    *   O build só pode prosseguir se o validador principal retornar aprovação absoluta:
-        ```bash
-        python .agents/scripts/verify_all.py . --url http://localhost:3000
-        ```
+| Script | Responsabilidade | Status de Homologação |
+| :--- | :--- | :--- |
+| **`prepare_release.ps1`** | Preparação da Release, validações sintáticas, sincronização automática de metadados, atualização da documentação técnica e coordenação do build | **Implementado e Homologado** |
+| **`build_release.ps1`** | Geração do pacote ZIP oficial limpo em `build/gerador-posts-gemini.zip` | **Implementado e Homologado** |
+| **`publish_release.ps1`** | Publicação da Release: commit automático, tagging Git semântico, git push origin remoto e upload do ZIP via GitHub CLI | **Implementado e Homologado** |
+
+> [!NOTE]
+> O Pipeline Oficial de Release do projeto está definitivamente concluído e homologado em todas as suas três etapas obrigatórias.
+
+### Fluxo Operacional de Execução
+O fluxo de publicação de novas versões segue obrigatoriamente a sequência de três passos:
+
+1.  **Passo 1: Preparação:** O operador dispara ativamente o script informando a versão desejada:
+    ```powershell
+    powershell -ExecutionPolicy Bypass -File scripts/prepare_release.ps1 -Version X.Y.Z
+    ```
+    O script valida o padrão `MAJOR.MINOR.PATCH`, atualiza todos os arquivos necessários (cabeçalho, Bootstrap, README, CHANGELOG e este manual) e verifica consistências pós-build.
+2.  **Passo 2: Build Automatizado:** Ao fim de sua validação, o `prepare_release.ps1` invoca e coordena automaticamente o `scripts/build_release.ps1` para gerar o arquivo compactado em `build/gerador-posts-gemini.zip` e encerra o processo de preparação.
+3.  **Passo 3: Publicação:** O operador executa o script de publicação para efetivar o commit, tag, push e deploy remoto da release:
+    ```powershell
+    powershell -ExecutionPolicy Bypass -File scripts/publish_release.ps1
+    ```
 
 ---
 
@@ -126,8 +132,8 @@ git push origin master --tags
 2.  **Upload e Publicação Remota:**
     *   Como tokens locais de CLI (`gh`) podem expirar ou não estar configurados no terminal de desenvolvimento local, a publicação final deve ser complementada manualmente no painel do GitHub.
     *   Acesse: `https://github.com/tdvie/gerador_posts/releases/new`.
-    *   Selecione a tag **`v2.0.0`** criada via Git.
-    *   Configure o título como `v2.0.0` e copie as notas de alteração do `CHANGELOG.md` na descrição.
+    *   Selecione a tag **`v2.0.1`** criada via Git.
+    *   Configure o título como `v2.0.1` e copie as notas de alteração do `CHANGELOG.md` na descrição.
     *   Arraste e anexe o arquivo compactado `build/gerador-posts-gemini.zip` gerado.
     *   Clique em **Publish release**.
 

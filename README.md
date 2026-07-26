@@ -120,14 +120,20 @@ Para manter a organização do código-fonte e do acervo documental de desenvolv
 
 O pacote oficial de distribuição e instalação do plugin é gerado em **`build/gerador-posts-gemini.zip`**.
 
-### Geração de Build Local
-Qualquer desenvolvedor pode gerar o pacote de distribuição localmente de forma idêntica e sem etapas manuais executando o script de automação contido no repositório. Para isso, abra o console do PowerShell na raiz do projeto e rode:
+### Pipeline Oficial de Release
+A preparação, empacotamento e publicação de novas versões são estruturados e automatizados por meio do Pipeline Oficial de Release, composto pelas seguintes etapas obrigatórias:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/build_release.ps1
-```
+*   **Passo 1: Preparação:** Sincronização de metadados de versão e validação técnica:
+    ```powershell
+    powershell -ExecutionPolicy Bypass -File scripts/prepare_release.ps1 -Version X.Y.Z
+    ```
+*   **Passo 2: Build (Automático):** Disparado de forma transparente pelo script de preparação, gerando o pacote consolidado em `build/gerador-posts-gemini.zip`.
+*   **Passo 3: Publicação:** Publicação automatizada de commits e tags Git com upload do ZIP no GitHub:
+    ```powershell
+    powershell -ExecutionPolicy Bypass -File scripts/publish_release.ps1
+    ```
 
-*   **Instalação e GitHub:** Este arquivo ZIP gerado é o único artefato utilizado para a instalação manual do plugin no painel do WordPress e também o arquivo oficial anexado na página de Releases do repositório no GitHub.
+*   **Instalação e GitHub:** O arquivo compactado `build/gerador-posts-gemini.zip` gerado é o único artefato utilizado para a instalação manual do plugin no painel do WordPress e também o arquivo oficial anexado na página de Releases do repositório no GitHub.
 *   **Propósito da Pasta build/:** O diretório `build/` concentra exclusivamente os artefatos temporários de distribuição e builds executados, garantindo que a raiz do projeto e o código de produção permaneçam organizados e livres de arquivos compactados pesados.
 
 ---

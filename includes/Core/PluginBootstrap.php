@@ -53,7 +53,7 @@ class PluginBootstrap {
 	 * Carrega estilos css no frontend.
 	 */
 	public static function enqueueFrontendStyles() {
-		wp_enqueue_style( 'gerador-posts-frontend', plugin_dir_url( dirname( __DIR__ ) ) . 'assets/css/frontend.css', array(), '2.0.0' );
+		wp_enqueue_style( 'gerador-posts-frontend', plugin_dir_url( dirname( __DIR__ ) ) . 'assets/css/frontend.css', array(), '2.0.1' );
 	}
 
 	/**
@@ -61,13 +61,13 @@ class PluginBootstrap {
 	 */
 	public static function enqueueAdminStyles( $hook ) {
 		if ( 'posts_page_gerador-posts-gemini' === $hook ) {
-			wp_enqueue_style( 'gerador-posts-admin-css', plugin_dir_url( dirname( __DIR__ ) ) . 'assets/css/admin.css', array(), '2.0.0' );
+			wp_enqueue_style( 'gerador-posts-admin-css', plugin_dir_url( dirname( __DIR__ ) ) . 'assets/css/admin.css', array(), '2.0.1' );
 			
 			// Enfileirar biblioteca Puter.js
-			wp_enqueue_script( 'puter-js', 'https://js.puter.com/v2/', array(), '2.0.0', false );
+			wp_enqueue_script( 'puter-js', 'https://js.puter.com/v2/', array(), '2.0.1', false );
 			
 			// Enfileirar JavaScript administrativo principal
-			wp_enqueue_script( 'gerador-posts-admin-js', plugin_dir_url( dirname( __DIR__ ) ) . 'assets/js/admin.js', array( 'jquery', 'puter-js' ), '2.0.0', true );
+			wp_enqueue_script( 'gerador-posts-admin-js', plugin_dir_url( dirname( __DIR__ ) ) . 'assets/js/admin.js', array( 'jquery', 'puter-js' ), '2.0.1', true );
 			
 			$blog_categories = array(
 				'Benefícios de ter um Site',
