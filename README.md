@@ -133,12 +133,14 @@ A preparação, empacotamento e publicação de novas versões são estruturados
     powershell -ExecutionPolicy Bypass -File scripts/publish_release.ps1
     ```
 
-### Instalação do GitHub CLI (gh)
+### Instalação e Validação do GitHub CLI (gh)
 Para Windows, o método oficial principal recomendado para instalar o GitHub CLI é:
 ```powershell
 winget install --id GitHub.cli
 ```
 Como alternativa manual secundária, baixe o instalador oficial diretamente em: https://cli.github.com/
+
+A validação do GitHub CLI no pipeline é executada de forma robusta em duas etapas: checagem de autenticação (`gh auth status`) e teste de leitura do repositório remoto (`gh repo view`), baseando-se estritamente em códigos de retorno do console (`$LASTEXITCODE`). Isso torna o pipeline independente de idioma, tradução, versão do utilitário ou alterações no formato da saída textual.
 
 *   **Instalação e GitHub:** O arquivo compactado `build/gerador-posts-gemini.zip` gerado é o único artefato utilizado para a instalação manual do plugin no painel do WordPress e também o arquivo oficial anexado na página de Releases do repositório no GitHub.
 *   **Propósito da Pasta build/:** O diretório `build/` concentra exclusivamente os artefatos temporários de distribuição e builds executados, garantindo que a raiz do projeto e o código de produção permaneçam organizados e livres de arquivos compactados pesados.

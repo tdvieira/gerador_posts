@@ -94,6 +94,7 @@ $allowed_files = @(
     "docs/releases/release_pipeline_console_standardization_v2_report.md",
     "docs/releases/release_pipeline_final_polish_report.md",
     "docs/releases/release_pipeline_working_tree_cleanup_report.md",
+    "docs/releases/github_cli_validation_hardening_report.md",
     "build/gerador-posts-gemini.zip",
     "build/.gitkeep",
     ".gitignore",
@@ -179,47 +180,84 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Output "[OK] Tags Git sincronizadas com o repositorio remoto."
 
-# 11. Verificar e publicar no GitHub usando o GitHub CLI
-$gh_installed = $false
-try {
-    $gh_test = (gh --version 2>&1)
-    if ($LASTEXITCODE -eq 0) {
-        $gh_installed = $true
-    }
-} catch {}
+# 11. Validar ambiente do GitHub CLI de forma robusta e independente de idioma
+Write-Output "[INFO] Validando ambiente GitHub..."
 
-$gh_release_status = "PENDENTE - GitHub CLI indisponivel"
+# Verificar se o executavel gh existe
+$gh_path = Get-Command gh -ErrorAction SilentlyContinue
+if (!$gh_path) {
+    Write-Output "=================================================="
+    Write-Output "VALIDACAO DO GITHUB CLI"
+    Write-Output "=================================================="
+    Write-Output "[ERRO] GitHub CLI nao encontrado."
+    exit 1
+}
+
+# Executar gh auth status para checar autenticacao
+$null = gh auth status 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Output "=================================================="
+    Write-Output "VALIDACAO DO GITHUB CLI"
+    Write-Output "=================================================="
+    Write-Output "[OK] GitHub CLI localizado."
+    Write-Output "[ERRO] GitHub CLI nao autenticado."
+    Write-Output "Execute: gh auth login"
+    exit 1
+}
+
+# Executar gh repo view para testar o acesso ao repositorio remoto
+$null = gh repo view 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Output "=================================================="
+    Write-Output "VALIDACAO DO GITHUB CLI"
+    Write-Output "=================================================="
+    Write-Output "[OK] GitHub CLI localizado."
+    Write-Output "[OK] Usuario autenticado."
+    Write-Output "[ERRO] Repositorio GitHub inacessivel."
+    exit 1
+}
+
+# Exibir painel de sucesso de validacao do gh
+Write-Output "=================================================="
+Write-Output "VALIDACAO DO GITHUB CLI"
+Write-Output "=================================================="
+Write-Output "[OK] GitHub CLI localizado."
+Write-Output "[OK] Usuario autenticado."
+Write-Output "[OK] Repositorio acessivel."
+Write-Output "=================================================="
+
+# Verificar se a release remota ja existe
+$null = gh release view $tag_name 2>&1
+$gh_release_exists = $LASTEXITCODE -eq 0
+
+# Linha em branco antes da criacao da release
+Write-Output ""
+
 $release_url = $null
-
-if ($gh_installed) {
-    Write-Output "[INFO] GitHub CLI detectado. Validando autenticacao..."
-    $auth_check = (gh auth status 2>&1 | Out-String)
-    if ($auth_check -match "Logged in to github.com as" -eq $true) {
-        Write-Output "[OK] Autenticacao com GitHub CLI validada."
-        
-        # Verificar se a release remota ja existe
-        $release_check = (gh release view $tag_name 2>&1 | Out-String)
-        if ($release_check -match "release v$Version" -or $release_check -match "title: v$Version") {
-            Write-Output "[OK] A release remota no GitHub para a tag '$tag_name' ja existe."
-            $release_url = (gh release view $tag_name --json url -q .url 2>$null).Trim()
-            $gh_release_status = "$tag_name [APROVADA]"
-        } else {
-            Write-Output "[INFO] Criando GitHub Release oficial para a tag '$tag_name'..."
-            $release_url = (gh release create $tag_name $zip_path --title $tag_name --notes "Release oficial v$Version" 2>&1).Trim()
-            if ($LASTEXITCODE -eq 0) {
-                Write-Output "[OK] Release publicada com sucesso."
-                Write-Output "[INFO] URL da Release: $release_url"
-                $gh_release_status = "$tag_name [APROVADA]"
-            } else {
-                Write-Output "[ERRO] Erro ao criar a GitHub Release: $release_url"
-                exit 1
-            }
-        }
-    } else {
-        Write-Output "[WARN] GitHub CLI esta instalado, mas nao autenticado. Etapa remota suspensa."
+if ($gh_release_exists) {
+    # Capturar a URL da release existente via gh
+    $release_url = (gh release view $tag_name --json url -q .url 2>$null)
+    if ($release_url) { $release_url = $release_url.Trim() }
+    Write-Output "[INFO] Release v$Version ja existe."
+    if ($release_url) {
+        Write-Output "[INFO] URL da Release: $release_url"
     }
+    $gh_release_status = "$tag_name [APROVADA]"
 } else {
-    Write-Output "[WARN] Utilitario GitHub CLI (gh) nao esta disponivel no PATH. Etapa remota suspensa."
+    Write-Output "[INFO] Criando GitHub Release oficial para a tag '$tag_name'..."
+    # Criar a release e capturar a URL gerada pelo comando gh
+    $release_url = (gh release create $tag_name $zip_path --title $tag_name --notes "Release oficial v$Version" 2>&1)
+    if ($LASTEXITCODE -eq 0) {
+        if ($release_url) { $release_url = $release_url.Trim() }
+        Write-Output "[OK] Release publicada com sucesso."
+        if ($release_url) {
+            Write-Output "[INFO] URL da Release: $release_url"
+        }
+        $gh_release_status = "$tag_name [APROVADA]"
+    } else {
+        Write-Output "[ERRO] Falha ao publicar Release."
+        exit 1
+    }
 }
 
 # 12. Limpeza automatica da Working Tree e Git Add de relatorios gerados
@@ -277,13 +315,13 @@ if ($invalid_post_changes.Count -gt 0) {
     Write-Output "A publicacao foi interrompida devido a inconsistencias na arvore de trabalho."
     exit 1
 }
-Write-Output "[OK] Arvore de trabalho limpa."
+Write-Output "[OK] Working Tree limpa."
 
 # Obter HASH do commit atual
 $commit_hash = (git rev-parse HEAD).Trim()
 $pub_date = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
-# Adicionar uma linha em branco para separar visualmente a execucao operacional do resumo
+# Linha em branco antes do resumo final da execucao
 Write-Output ""
 
 Write-Output "=================================================="
@@ -297,6 +335,9 @@ Write-Output "Caminho ZIP Gerado : build/gerador-posts-gemini.zip"
 Write-Output "Status Validacao   : APROVADA [OK]"
 Write-Output "Status do Push     : CONCLUIDO [OK]"
 Write-Output "Status da GH Rel   : $gh_release_status"
+if ($release_url) {
+    Write-Output "URL da Release     : $release_url"
+}
 Write-Output "Data e Hora Pub    : $pub_date"
 Write-Output "Status Final       : PUBLICADO COM SUCESSO [OK]"
 Write-Output "=================================================="

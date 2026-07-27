@@ -121,7 +121,7 @@ git push origin master --tags
 
 ---
 
-## ⚙️ Instalação do GitHub CLI (gh)
+## ⚙️ Instalação e Validação do GitHub CLI (gh)
 
 Para automatizar totalmente a publicação de releases e o upload do pacote ZIP no GitHub a partir do console local de desenvolvimento, o utilitário GitHub CLI deve estar configurado no sistema.
 
@@ -131,6 +131,8 @@ Para automatizar totalmente a publicação de releases e o upload do pacote ZIP 
     ```
 *   **Instalação Manual (Alternativa):** Download do instalador executável diretamente em: https://cli.github.com/
 *   **Autenticação:** Após instalar, execute `gh auth login` no terminal e autentique sua conta.
+
+**Validação Robusta:** O script de publicação executa a validação da CLI em duas etapas consecutivas baseando-se unicamente nos códigos de retorno de execução (`$LASTEXITCODE`), checando primeiro a autenticação local do usuário (`gh auth status`) e depois o acesso efetivo de leitura/escrita ao repositório remoto do projeto (`gh repo view`), garantindo que o pipeline seja imune a variações linguísticas, versões da ferramenta ou layouts de texto no console.
 
 ---
 

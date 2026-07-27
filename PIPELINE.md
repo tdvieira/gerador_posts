@@ -30,7 +30,7 @@ O Pipeline Oficial de Release é composto por três scripts especializados sob o
 
 ---
 
-## ⚙️ 2. Instalação do GitHub CLI (gh)
+## ⚙️ 2. Instalação e Validação do GitHub CLI (gh)
 
 Para automatizar totalmente a publicação de releases e o upload do pacote ZIP no GitHub, o utilitário GitHub CLI deve estar configurado no sistema.
 
@@ -40,6 +40,13 @@ Para automatizar totalmente a publicação de releases e o upload do pacote ZIP 
     ```
 *   **Instalação Manual (Alternativa):** Baixe o instalador executável diretamente em [cli.github.com](https://cli.github.com/).
 *   **Autenticação:** Após instalar, execute `gh auth login` no terminal e autentique sua conta.
+
+### Validação em Duas Etapas
+Para certificar a resiliência técnica em ambientes de integração heterogêneos, a verificação do utilitário `gh` ocorre em duas fases consecutivas:
+1.  **Fase 1: Autenticação (`gh auth status`):** Checa se as credenciais locais são válidas.
+2.  **Fase 2: Acesso ao Repositório (`gh repo view`):** Testa se a leitura e gravação remota no repositório do projeto estão liberadas.
+
+Ambas as checagens utilizam estritamente o código de retorno de execução do terminal (`$LASTEXITCODE`), garantindo total independência em relação ao idioma do console, tradução do texto de log ou formato de saída de novas versões do CLI.
 
 ---
 
@@ -72,6 +79,7 @@ Caminho ZIP Gerado : build/gerador-posts-gemini.zip
 Status Validacao   : APROVADA [OK]
 Status do Push     : CONCLUIDO [OK]
 Status da GH Rel   : v2.0.1 [APROVADA]
+URL da Release     : https://github.com/tdvieira/gerador_posts/releases/tag/v2.0.1
 Data e Hora Pub    : 2026-07-27 10:15:00
 Status Final       : PUBLICADO COM SUCESSO [OK]
 ==================================================
