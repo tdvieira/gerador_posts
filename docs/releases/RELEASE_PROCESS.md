@@ -37,11 +37,11 @@ O processo de empacotamento e publicação do plugin é estruturado no **Pipelin
 | Script | Responsabilidade | Status de Homologação |
 | :--- | :--- | :--- |
 | **`prepare_release.ps1`** | Preparação da Release, validações sintáticas, sincronização automática de metadados, atualização da documentação técnica e coordenação do build | **Implementado e Homologado** |
-| **`build_release.ps1`** | Geração do pacote ZIP oficial limpo em `build/gerador-posts-gemini.zip` | **Implementado e Homologado** |
+| **`build_release.ps1`** | Geração e validação estrutural automatizada do pacote ZIP oficial em `build/gerador-posts-gemini.zip` | **Implementado e Homologado** |
 | **`publish_release.ps1`** | Publicação da Release: commit automático, tagging Git semântico, git push origin remoto e upload do ZIP via GitHub CLI | **Implementado e Homologado** |
 
-> [!NOTE]
-> O Pipeline Oficial de Release do projeto está definitivamente concluído e homologado em todas as suas três etapas obrigatórias.
+> [!IMPORTANT]
+> O Pipeline Oficial de Release do projeto está definitivamente concluído em todas as suas três etapas obrigatórias. Nenhum pacote compactado poderá seguir para o script `publish_release.ps1` sem passar e ser aprovado com sucesso absoluto pela validação estrutural automatizada interna do script `build_release.ps1`.
 
 ### Fluxo Operacional de Execução
 O fluxo de publicação de novas versões segue obrigatoriamente a sequência de três passos:
@@ -51,7 +51,7 @@ O fluxo de publicação de novas versões segue obrigatoriamente a sequência de
     powershell -ExecutionPolicy Bypass -File scripts/prepare_release.ps1 -Version X.Y.Z
     ```
     O script valida o padrão `MAJOR.MINOR.PATCH`, atualiza todos os arquivos necessários (cabeçalho, Bootstrap, README, CHANGELOG e este manual) e verifica consistências pós-build.
-2.  **Passo 2: Build Automatizado:** Ao fim de sua validação, o `prepare_release.ps1` invoca e coordena automaticamente o `scripts/build_release.ps1` para gerar o arquivo compactado em `build/gerador-posts-gemini.zip` e encerra o processo de preparação.
+2.  **Passo 2: Build e Validação Automatizados:** Ao fim de sua validação, o `prepare_release.ps1` invoca e coordena automaticamente o `scripts/build_release.ps1`. O build-script gera o pacote compactado em `build/gerador-posts-gemini.zip` e executa de forma imediata a auditoria estrutural do ZIP (.NET). Qualquer inconformidade ou corrupção de estrutura deleta o ZIP e aborta o pipeline para impedir deploys corrompidos.
 3.  **Passo 3: Publicação:** O operador executa o script de publicação para efetivar o commit, tag, push e deploy remoto da release:
     ```powershell
     powershell -ExecutionPolicy Bypass -File scripts/publish_release.ps1

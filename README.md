@@ -127,7 +127,7 @@ A preparação, empacotamento e publicação de novas versões são estruturados
     ```powershell
     powershell -ExecutionPolicy Bypass -File scripts/prepare_release.ps1 -Version X.Y.Z
     ```
-*   **Passo 2: Build (Automático):** Disparado de forma transparente pelo script de preparação, gerando o pacote consolidado em `build/gerador-posts-gemini.zip`.
+*   **Passo 2: Build e Validação (Automático):** Disparado de forma transparente pelo script de preparação, gerando o pacote em `build/gerador-posts-gemini.zip` e executando de forma imediata a validação estrutural obrigatória (.NET) de integridade técnica do pacote para o WordPress.
 *   **Passo 3: Publicação:** Publicação automatizada de commits e tags Git com upload do ZIP no GitHub:
     ```powershell
     powershell -ExecutionPolicy Bypass -File scripts/publish_release.ps1
