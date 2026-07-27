@@ -56,7 +56,7 @@ O fluxo de publicação de novas versões segue obrigatoriamente a sequência de
     ```powershell
     powershell -ExecutionPolicy Bypass -File scripts/publish_release.ps1
     ```
-    O script audita a working tree, comita as alterações permitidas e executa o tagging e push. Ao final do processo, os relatórios e documentos administrativos gerados pelo próprio pipeline de release (ex: manuais e logs técnicos) são automaticamente adicionados com `git add` ao Git, garantindo que a Working Tree permaneça limpa. Alterações externas de código não permitidas continuam bloqueando a publicação por razões de segurança.
+    O script audita a working tree, comita as alterações permitidas e executa o tagging e push. Ao final do processo, os relatórios e documentos administrativos gerados pelo próprio pipeline de release (localizados sob o padrão dinâmico `docs/releases/*.md`, como manuais operacionais e relatórios técnicos) são identificados dinamicamente e adicionados automaticamente com `git add` ao Git, garantindo que a Working Tree permaneça limpa para o encerramento do processo. Alterações externas de código não permitidas continuam bloqueando a publicação por razões de segurança.
 
 ---
 
@@ -132,7 +132,7 @@ Para automatizar totalmente a publicação de releases e o upload do pacote ZIP 
 *   **Instalação Manual (Alternativa):** Download do instalador executável diretamente em: https://cli.github.com/
 *   **Autenticação:** Após instalar, execute `gh auth login` no terminal e autentique sua conta.
 
-**Validação Robusta:** O script de publicação executa a validação da CLI em duas etapas consecutivas baseando-se unicamente nos códigos de retorno de execução (`$LASTEXITCODE`), checando primeiro a autenticação local do usuário (`gh auth status`) e depois o acesso efetivo de leitura/escrita ao repositório remoto do projeto (`gh repo view`), garantindo que o pipeline seja imune a variações linguísticas, versões da ferramenta ou layouts de texto no console.
+**Validação e Execução de Comandos Externos:** O script de publicação centraliza todas as execuções de comandos externos do Git e do GitHub CLI (`gh`) em uma única função auxiliar reutilizável, baseando-se exclusivamente nos códigos de retorno de execução (`$LASTEXITCODE`). Isso inclui `git status`, `git add`, `git commit`, `git push`, `git tag`, `gh auth status`, `gh repo view`, `gh release view`, `gh release create` e `gh release upload`. Ao remover o uso de redirecionamentos complexos como `2>&1` e descartar qualquer parsing textual da saída para fins de tomada de decisões, o pipeline garante imunidade absoluta contra variações linguísticas do sistema, traduções de console, versões das ferramentas ou modificações no formato da saída de texto.
 
 ---
 

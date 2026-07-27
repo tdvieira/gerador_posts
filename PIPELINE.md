@@ -25,7 +25,7 @@ O Pipeline Oficial de Release é composto por três scripts especializados sob o
     *   Gera a tag semântica local (`vMAJOR.MINOR.PATCH`).
     *   Sincroniza commits e tags com a branch remota `main`.
     *   Publica a release no GitHub anexando o ZIP através do GitHub CLI (`gh`).
-    *   **Limpeza e Git Add Automático:** Remove resíduos da pasta `temp_zip/`. Adiciona automaticamente com `git add` todos os relatórios e manuais de documentação gerados pelo próprio pipeline. Caso reste qualquer alteração estranha (código pendente), a publicação é cancelada por segurança.
+    *   **Limpeza e Git Add Dinâmico:** Remove resíduos da pasta `temp_zip/`. Identifica dinamicamente por padrões (wildcards) todos os arquivos Markdown oficiais em `docs/releases/*.md` (relatórios técnicos, manuais operacionais) e os adiciona automaticamente com `git add` no commit de publicação, sem necessidade de atualizar o script. Caso reste qualquer alteração em arquivos externos ao processo de release ou código de desenvolvimento alheio, a publicação é cancelada por segurança.
     *   Executa a validação final da consistência de produção.
 
 ---
@@ -41,12 +41,10 @@ Para automatizar totalmente a publicação de releases e o upload do pacote ZIP 
 *   **Instalação Manual (Alternativa):** Baixe o instalador executável diretamente em [cli.github.com](https://cli.github.com/).
 *   **Autenticação:** Após instalar, execute `gh auth login` no terminal e autentique sua conta.
 
-### Validação em Duas Etapas
-Para certificar a resiliência técnica em ambientes de integração heterogêneos, a verificação do utilitário `gh` ocorre em duas fases consecutivas:
-1.  **Fase 1: Autenticação (`gh auth status`):** Checa se as credenciais locais são válidas.
-2.  **Fase 2: Acesso ao Repositório (`gh repo view`):** Testa se a leitura e gravação remota no repositório do projeto estão liberadas.
+### Validação e Execução de Comandos Externos
+Para certificar a resiliência técnica em ambientes de integração heterogêneos, todas as validações e execuções de comandos externos do Git e do GitHub CLI (`gh`) no pipeline utilizam estritamente os códigos de retorno de execução do terminal (`$LASTEXITCODE`), por meio de uma função auxiliar reutilizável (`Execute-ExternalCommand`) declarada no próprio script.
 
-Ambas as checagens utilizam estritamente o código de retorno de execução do terminal (`$LASTEXITCODE`), garantindo total independência em relação ao idioma do console, tradução do texto de log ou formato de saída de novas versões do CLI.
+Isso engloba checagens e operações como `git status`, `git add`, `git commit`, `git push`, `git tag`, `gh auth status`, `gh repo view`, `gh release view`, `gh release create` e `gh release upload`. Essa arquitetura elimina qualquer dependência de redirecionamentos de saída complexos (como `2>&1`) ou de parsing textual da saída dos comandos, tornando o pipeline 100% independente de idioma, tradução do console, versão ou formatação textual das ferramentas Git e GitHub CLI.
 
 ---
 

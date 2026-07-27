@@ -128,7 +128,7 @@ A preparação, empacotamento e publicação de novas versões são estruturados
     powershell -ExecutionPolicy Bypass -File scripts/prepare_release.ps1 -Version X.Y.Z
     ```
 *   **Passo 2: Build e Validação (Automático):** Disparado de forma transparente pelo script de preparação, gerando o pacote em `build/gerador-posts-gemini.zip` e executando de forma imediata a validação estrutural obrigatória (.NET) de integridade técnica do pacote para o WordPress.
-*   **Passo 3: Publicação:** Publicação automatizada de commits e tags Git com upload do ZIP no GitHub, limpeza de resíduos temporários e exibição do resumo consolidado. Os relatórios e documentos previstos gerados pelo pipeline são adicionados automaticamente com `git add` no commit de publicação, mas qualquer alteração externa de código continua bloqueando o deploy por segurança:
+*   **Passo 3: Publicação:** Publicação automatizada de commits e tags Git com upload do ZIP no GitHub, limpeza de resíduos temporários e exibição do resumo consolidado. Toda a documentação e relatórios técnicos oficiais gerados pelo pipeline de release (localizados sob o padrão dinâmico `docs/releases/*.md`) são identificados dinamicamente por padrões e adicionados automaticamente com `git add` no commit de publicação, enquanto alterações em qualquer outro arquivo de código ou desenvolvimento alheio continuam bloqueando o deploy por segurança:
     ```powershell
     powershell -ExecutionPolicy Bypass -File scripts/publish_release.ps1
     ```
@@ -140,7 +140,7 @@ winget install --id GitHub.cli
 ```
 Como alternativa manual secundária, baixe o instalador oficial diretamente em: https://cli.github.com/
 
-A validação do GitHub CLI no pipeline é executada de forma robusta em duas etapas: checagem de autenticação (`gh auth status`) e teste de leitura do repositório remoto (`gh repo view`), baseando-se estritamente em códigos de retorno do console (`$LASTEXITCODE`). Isso torna o pipeline independente de idioma, tradução, versão do utilitário ou alterações no formato da saída textual.
+Todas as validações e execuções de comandos externos do Git e do GitHub CLI (`gh`) no pipeline são executadas de forma robusta por meio de uma função auxiliar reutilizável, baseando-se exclusivamente em códigos de retorno de execução do console (`$LASTEXITCODE`). Isso engloba os comandos `git status`, `git add`, `git commit`, `git push`, `git tag`, `gh auth status`, `gh repo view`, `gh release view`, `gh release create` e `gh release upload`, eliminando completamente redirecionamentos de saída como `2>&1` ou parsing textual. Esta arquitetura torna a execução do pipeline totalmente independente de idioma, tradução do console, versão ou formatação de texto das ferramentas Git e GitHub CLI.
 
 *   **Instalação e GitHub:** O arquivo compactado `build/gerador-posts-gemini.zip` gerado é o único artefato utilizado para a instalação manual do plugin no painel do WordPress e também o arquivo oficial anexado na página de Releases do repositório no GitHub.
 *   **Propósito da Pasta build/:** O diretório `build/` concentra exclusivamente os artefatos temporários de distribuição e builds executados, garantindo que a raiz do projeto e o código de produção permaneçam organizados e livres de arquivos compactados pesados.

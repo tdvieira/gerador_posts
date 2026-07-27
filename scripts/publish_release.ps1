@@ -20,19 +20,143 @@ cmd /c chcp 437 > $null
 $script_dir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $source_dir = Split-Path -Parent $script_dir
 
+# Funcao auxiliar reutilizavel para execucao padronizada de comandos externos
+function Execute-ExternalCommand {
+    param (
+        [string]$Command,
+        [string[]]$Arguments = @(),
+        [int[]]$AllowedExitCodes = @(0),
+        [bool]$CaptureOutput = $false
+    )
+
+    $stdoutFile = [System.IO.Path]::GetTempFileName()
+    $stderrFile = [System.IO.Path]::GetTempFileName()
+
+    # Serializacao robusta dos argumentos para compatibilidade com o parser do Windows (CommandLineToArgvW)
+    $escapedArgs = @()
+    foreach ($arg in $Arguments) {
+        if ($arg -match '[\s"]' -or $arg -eq "") {
+            # Escapa aspas internas com barra invertida e envolve com aspas duplas
+            $escaped = $arg.Replace('"', '\"')
+            $escapedArgs += "`"$escaped`""
+        } else {
+            $escapedArgs += $arg
+        }
+    }
+    $argumentString = [string]::Join(" ", $escapedArgs)
+
+    try {
+        $p = Start-Process -FilePath $Command -ArgumentList $argumentString -NoNewWindow -PassThru -Wait -RedirectStandardOutput $stdoutFile -RedirectStandardError $stderrFile
+        $exitCode = $p.ExitCode
+    }
+    catch {
+        $exitCode = -1
+        [System.IO.File]::WriteAllText($stderrFile, $_.Exception.Message)
+    }
+
+    $global:LASTEXITCODE = $exitCode
+
+    $isAllowed = $false
+    foreach ($code in $AllowedExitCodes) {
+        if ($exitCode -eq $code) {
+            $isAllowed = $true
+            break
+        }
+    }
+
+    $stdout = @()
+    $stderr = @()
+
+    if (Test-Path $stdoutFile) {
+        $stdout = Get-Content $stdoutFile
+        Remove-Item $stdoutFile -Force
+    }
+    if (Test-Path $stderrFile) {
+        $stderr = Get-Content $stderrFile
+        Remove-Item $stderrFile -Force
+    }
+
+    if (!$isAllowed) {
+        if ($stderr) {
+            if ($stderr -is [array]) {
+                $errText = $stderr -join "`n"
+            } else {
+                $errText = $stderr
+            }
+            if ($errText.Trim()) {
+                Write-Output $errText.Trim()
+            }
+        }
+        return $null
+    }
+
+    if ($CaptureOutput) {
+        if (!$stdout) {
+            return $null
+        }
+        if ($stdout -is [array] -and $stdout.Count -eq 1) {
+            return $stdout[0]
+        }
+        return $stdout
+    }
+    return $null
+}
+
+# Funcao auxiliar para validar se um arquivo e permitido no processo de release
+function Test-IsFileAllowed {
+    param (
+        [string]$FilePathNorm
+    )
+
+    $static_allowed = @(
+        "gerador-posts-gemini.php",
+        "includes/Core/PluginBootstrap.php",
+        "README.md",
+        "CHANGELOG.md",
+        "PIPELINE.md",
+        "build/gerador-posts-gemini.zip",
+        "build/.gitkeep",
+        ".gitignore",
+        ".agents/rules/project-governance.md",
+        ".agents/rules/documentation.md",
+        "scripts/prepare_release.ps1",
+        "scripts/build_release.ps1",
+        "scripts/publish_release.ps1"
+    )
+
+    foreach ($static in $static_allowed) {
+        if ($FilePathNorm -eq $static) {
+            return $true
+        }
+    }
+
+    # Whitelist baseada em padroes (wildcards) para relatorios e manuais oficiais de release
+    if ($FilePathNorm -like "docs/releases/*.md") {
+        return $true
+    }
+
+    return $false
+}
+
 Write-Output "=================================================="
 Write-Output "INICIANDO PUBLICACAO DA RELEASE"
 Write-Output "=================================================="
 
 # 2. Validar que o diretorio e um repositorio Git valido
-if (!(git rev-parse --is-inside-work-tree 2>$null)) {
+$is_git_check = Execute-ExternalCommand -Command "git" -Arguments @("rev-parse", "--is-inside-work-tree") -AllowedExitCodes @(0, 128) -CaptureOutput $true
+if ($LASTEXITCODE -ne 0 -or !$is_git_check -or $is_git_check.Trim() -ne "true") {
     Write-Output "[ERRO] O diretorio atual nao e um repositorio Git valido."
     exit 1
 }
 Write-Output "[OK] Repositorio Git ativo detectado."
 
 # 3. Validar que o branch atual e main
-$branch = (git rev-parse --abbrev-ref HEAD).Trim()
+$branch_raw = Execute-ExternalCommand -Command "git" -Arguments @("rev-parse", "--abbrev-ref", "HEAD") -CaptureOutput $true
+if ($LASTEXITCODE -ne 0 -or !$branch_raw) {
+    Write-Output "[ERRO] Nao foi possivel obter a branch atual do Git."
+    exit 1
+}
+$branch = $branch_raw.Trim()
 if ($branch -ne "main") {
     Write-Output "[ERRO] O branch atual e '$branch'. A publicacao do Pipeline Oficial de Release so e permitida no branch 'main'."
     exit 1
@@ -78,47 +202,24 @@ if (!(Test-Path $zip_path)) {
 Write-Output "[OK] Pacote ZIP localizado e pre-validado."
 
 # 7. Validar a working tree (arquivos permitidos de release vs arquivos soltos de desenvolvimento)
-$status = git status --porcelain
-$allowed_files = @(
-    "gerador-posts-gemini.php",
-    "includes/Core/PluginBootstrap.php",
-    "README.md",
-    "CHANGELOG.md",
-    "PIPELINE.md",
-    "docs/releases/RELEASE_PROCESS.md",
-    "docs/releases/release_pipeline_consolidation_report.md",
-    "docs/releases/release_preparation_script_report.md",
-    "docs/releases/release_publish_script_report.md",
-    "docs/releases/wordpress_package_validation_automation_report.md",
-    "docs/releases/release_publish_pipeline_hardening_report.md",
-    "docs/releases/release_pipeline_console_standardization_v2_report.md",
-    "docs/releases/release_pipeline_final_polish_report.md",
-    "docs/releases/release_pipeline_working_tree_cleanup_report.md",
-    "docs/releases/github_cli_validation_hardening_report.md",
-    "build/gerador-posts-gemini.zip",
-    "build/.gitkeep",
-    ".gitignore",
-    ".agents/rules/project-governance.md",
-    ".agents/rules/documentation.md",
-    "scripts/prepare_release.ps1",
-    "scripts/build_release.ps1",
-    "scripts/publish_release.ps1"
-)
-
+$status = Execute-ExternalCommand -Command "git" -Arguments @("status", "--porcelain") -CaptureOutput $true
+if ($LASTEXITCODE -ne 0) {
+    Write-Output "[ERRO] Falha ao executar git status."
+    exit 1
+}
 $invalid_changes = @()
 if ($status) {
-    foreach ($line in $status) {
+    $lines = @()
+    if ($status -is [array]) {
+        $lines = $status
+    } else {
+        $lines = $status.Split("`n") | Where-Object { $_.Trim() }
+    }
+    foreach ($line in $lines) {
         $file_path = $line.Substring(3).Trim()
         $file_path_norm = $file_path.Replace("\", "/")
         
-        $is_allowed = $false
-        foreach ($allowed in $allowed_files) {
-            if ($file_path_norm -eq $allowed) {
-                $is_allowed = $true
-                break
-            }
-        }
-        if (!$is_allowed) {
+        if (!(Test-IsFileAllowed -FilePathNorm $file_path_norm)) {
             $invalid_changes += $file_path_norm
         }
     }
@@ -135,10 +236,14 @@ if ($invalid_changes.Count -gt 0) {
 Write-Output "[OK] Arvore de trabalho limpa e em conformidade."
 
 # 8. Commitar modificacoes pendentes de preparacao se houver
-if ($status) {
+if ($status -and ($status -is [array] -or $status.Trim())) {
     Write-Output "[INFO] Fazendo commit das alteracoes preparatorias de release..."
-    git add -A
-    git commit -m "Release v$Version"
+    Execute-ExternalCommand -Command "git" -Arguments @("add", "-A")
+    if ($LASTEXITCODE -ne 0) {
+        Write-Output "[ERRO] Erro ao adicionar arquivos para commit."
+        exit 1
+    }
+    Execute-ExternalCommand -Command "git" -Arguments @("commit", "-m", "Release v$Version")
     if ($LASTEXITCODE -ne 0) {
         Write-Output "[ERRO] Erro ao criar o commit da release."
         exit 1
@@ -150,12 +255,16 @@ if ($status) {
 
 # 9. Verificar e criar tag Git local
 $tag_name = "v$Version"
-$tag_exists = (git tag -l $tag_name)
-if ($tag_exists -and $tag_exists.Trim()) {
+$tag_exists_raw = Execute-ExternalCommand -Command "git" -Arguments @("tag", "-l", $tag_name) -CaptureOutput $true
+if ($LASTEXITCODE -ne 0) {
+    Write-Output "[ERRO] Erro ao verificar a tag Git local."
+    exit 1
+}
+if ($tag_exists_raw -and $tag_exists_raw.Trim()) {
     Write-Output "[OK] A tag Git '$tag_name' ja existe localmente."
 } else {
     Write-Output "[INFO] Criando a tag Git '$tag_name'..."
-    git tag -a $tag_name -m "Release oficial $tag_name"
+    Execute-ExternalCommand -Command "git" -Arguments @("tag", "-a", $tag_name, "-m", "Release oficial $tag_name")
     if ($LASTEXITCODE -ne 0) {
         Write-Output "[ERRO] Erro ao criar a tag Git local."
         exit 1
@@ -165,7 +274,7 @@ if ($tag_exists -and $tag_exists.Trim()) {
 
 # 10. Push das alteracoes e tags para o repositorio remoto
 Write-Output "[INFO] Sincronizando commits com a branch remota main..."
-git push origin main
+Execute-ExternalCommand -Command "git" -Arguments @("push", "origin", "main")
 if ($LASTEXITCODE -ne 0) {
     Write-Output "[ERRO] Erro ao enviar commits para o origin remoto."
     exit 1
@@ -173,7 +282,7 @@ if ($LASTEXITCODE -ne 0) {
 Write-Output "[OK] Commits enviados para a branch remota main."
 
 Write-Output "[INFO] Sincronizando tags com o repositorio remoto..."
-git push origin --tags
+Execute-ExternalCommand -Command "git" -Arguments @("push", "origin", "--tags")
 if ($LASTEXITCODE -ne 0) {
     Write-Output "[ERRO] Erro ao enviar tags para o origin remoto."
     exit 1
@@ -194,7 +303,7 @@ if (!$gh_path) {
 }
 
 # Executar gh auth status para checar autenticacao
-$null = gh auth status 2>&1
+Execute-ExternalCommand -Command "gh" -Arguments @("auth", "status")
 if ($LASTEXITCODE -ne 0) {
     Write-Output "=================================================="
     Write-Output "VALIDACAO DO GITHUB CLI"
@@ -206,7 +315,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # Executar gh repo view para testar o acesso ao repositorio remoto
-$null = gh repo view 2>&1
+Execute-ExternalCommand -Command "gh" -Arguments @("repo", "view")
 if ($LASTEXITCODE -ne 0) {
     Write-Output "=================================================="
     Write-Output "VALIDACAO DO GITHUB CLI"
@@ -227,8 +336,9 @@ Write-Output "[OK] Repositorio acessivel."
 Write-Output "=================================================="
 
 # Verificar se a release remota ja existe
-$null = gh release view $tag_name 2>&1
-$gh_release_exists = $LASTEXITCODE -eq 0
+# gh release view retorna exit code 1 quando a release nao existe, o que e esperado e nao-fatal.
+Execute-ExternalCommand -Command "gh" -Arguments @("release", "view", $tag_name) -AllowedExitCodes @(0, 1)
+$gh_release_exists = ($LASTEXITCODE -eq 0)
 
 # Linha em branco antes da criacao da release
 Write-Output ""
@@ -236,8 +346,10 @@ Write-Output ""
 $release_url = $null
 if ($gh_release_exists) {
     # Capturar a URL da release existente via gh
-    $release_url = (gh release view $tag_name --json url -q .url 2>$null)
-    if ($release_url) { $release_url = $release_url.Trim() }
+    $release_url_raw = Execute-ExternalCommand -Command "gh" -Arguments @("release", "view", $tag_name, "--json", "url", "-q", ".url") -AllowedExitCodes @(0, 1) -CaptureOutput $true
+    if ($release_url_raw) {
+        $release_url = $release_url_raw.Trim()
+    }
     Write-Output "[INFO] Release v$Version ja existe."
     if ($release_url) {
         Write-Output "[INFO] URL da Release: $release_url"
@@ -246,9 +358,9 @@ if ($gh_release_exists) {
 } else {
     Write-Output "[INFO] Criando GitHub Release oficial para a tag '$tag_name'..."
     # Criar a release e capturar a URL gerada pelo comando gh
-    $release_url = (gh release create $tag_name $zip_path --title $tag_name --notes "Release oficial v$Version" 2>&1)
+    $release_url_raw = Execute-ExternalCommand -Command "gh" -Arguments @("release", "create", $tag_name, $zip_path, "--title", $tag_name, "--notes", "Release oficial v$Version") -CaptureOutput $true
     if ($LASTEXITCODE -eq 0) {
-        if ($release_url) { $release_url = $release_url.Trim() }
+        if ($release_url_raw) { $release_url = $release_url_raw.Trim() }
         Write-Output "[OK] Release publicada com sucesso."
         if ($release_url) {
             Write-Output "[INFO] URL da Release: $release_url"
@@ -273,35 +385,60 @@ $current_pref = $ErrorActionPreference
 $ErrorActionPreference = "Continue"
 
 Write-Output "[INFO] Adicionando arquivos e relatorios oficiais de release ao Git..."
-foreach ($allowed in $allowed_files) {
-    # Nao adicionar o ZIP pois ele esta no .gitignore de forma intencional
-    if ($allowed -eq "build/gerador-posts-gemini.zip") {
-        continue
-    }
-    $allowed_abs = Join-Path $source_dir ($allowed.Replace("/", [System.IO.Path]::DirectorySeparatorChar))
+
+$static_to_add = @(
+    "gerador-posts-gemini.php",
+    "includes/Core/PluginBootstrap.php",
+    "README.md",
+    "CHANGELOG.md",
+    "PIPELINE.md",
+    ".gitignore",
+    "build/.gitkeep",
+    "scripts/prepare_release.ps1",
+    "scripts/build_release.ps1",
+    "scripts/publish_release.ps1",
+    ".agents/rules/project-governance.md",
+    ".agents/rules/documentation.md"
+)
+
+# Adicionar arquivos estaticos
+foreach ($static in $static_to_add) {
+    $allowed_abs = Join-Path $source_dir ($static.Replace("/", [System.IO.Path]::DirectorySeparatorChar))
     if (Test-Path $allowed_abs) {
-        git add $allowed_abs 2>$null
+        Execute-ExternalCommand -Command "git" -Arguments @("add", $allowed_abs) -AllowedExitCodes @(0, 1, 128)
+    }
+}
+
+# Adicionar dinamicamente relatorios e manuais da pasta docs/releases/
+$releases_dir = Join-Path $source_dir "docs\releases"
+if (Test-Path $releases_dir) {
+    $md_files = Get-ChildItem -Path $releases_dir -Filter "*.md"
+    foreach ($file in $md_files) {
+        Execute-ExternalCommand -Command "git" -Arguments @("add", $file.FullName) -AllowedExitCodes @(0, 1, 128)
     }
 }
 
 $ErrorActionPreference = $current_pref
 
 # Verificar se a working tree contem qualquer alteracao externa nao permitida
-$post_status = git status --porcelain
+$post_status = Execute-ExternalCommand -Command "git" -Arguments @("status", "--porcelain") -CaptureOutput $true
+if ($LASTEXITCODE -ne 0) {
+    Write-Output "[ERRO] Falha ao verificar o status do Git pos-release."
+    exit 1
+}
 $invalid_post_changes = @()
-if ($post_status) {
-    foreach ($line in $post_status) {
+if ($post_status -and ($post_status -is [array] -or $post_status.Trim())) {
+    $lines = @()
+    if ($post_status -is [array]) {
+        $lines = $post_status
+    } else {
+        $lines = $post_status.Split("`n") | Where-Object { $_.Trim() }
+    }
+    foreach ($line in $lines) {
         $file_path = $line.Substring(3).Trim()
         $file_path_norm = $file_path.Replace("\", "/")
         
-        $is_allowed = $false
-        foreach ($allowed in $allowed_files) {
-            if ($file_path_norm -eq $allowed) {
-                $is_allowed = $true
-                break
-            }
-        }
-        if (!$is_allowed) {
+        if (!(Test-IsFileAllowed -FilePathNorm $file_path_norm)) {
             $invalid_post_changes += $file_path_norm
         }
     }
@@ -318,7 +455,12 @@ if ($invalid_post_changes.Count -gt 0) {
 Write-Output "[OK] Working Tree limpa."
 
 # Obter HASH do commit atual
-$commit_hash = (git rev-parse HEAD).Trim()
+$commit_hash_raw = Execute-ExternalCommand -Command "git" -Arguments @("rev-parse", "HEAD") -CaptureOutput $true
+if ($LASTEXITCODE -ne 0 -or !$commit_hash_raw) {
+    Write-Output "[ERRO] Nao foi possivel obter o hash do commit atual."
+    exit 1
+}
+$commit_hash = $commit_hash_raw.Trim()
 $pub_date = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
 # Linha em branco antes do resumo final da execucao
@@ -344,11 +486,19 @@ Write-Output "=================================================="
 
 # 13. Validacao Final do Pipeline
 $zip_exists_check = Test-Path $zip_path
-$tag_exists_check = (git tag -l $tag_name) -and ((git tag -l $tag_name).Trim() -eq $tag_name)
-$local_commit = (git rev-parse HEAD).Trim()
-$remote_commit = (git rev-parse origin/main 2>$null)
-if ($remote_commit) { $remote_commit = $remote_commit.Trim() }
-$git_sync_check = $local_commit -eq $remote_commit
+
+$tag_check_raw = Execute-ExternalCommand -Command "git" -Arguments @("tag", "-l", $tag_name) -CaptureOutput $true
+$tag_exists_check = $tag_check_raw -and ($tag_check_raw.Trim() -eq $tag_name)
+
+$local_commit_raw = Execute-ExternalCommand -Command "git" -Arguments @("rev-parse", "HEAD") -CaptureOutput $true
+$local_commit = $null
+if ($local_commit_raw) { $local_commit = $local_commit_raw.Trim() }
+
+$remote_commit_raw = Execute-ExternalCommand -Command "git" -Arguments @("rev-parse", "origin/main") -AllowedExitCodes @(0, 1, 128) -CaptureOutput $true
+$remote_commit = $null
+if ($remote_commit_raw) { $remote_commit = $remote_commit_raw.Trim() }
+
+$git_sync_check = $local_commit -and $remote_commit -and ($local_commit -eq $remote_commit)
 
 if ($zip_exists_check -and $tag_exists_check -and $git_sync_check) {
     Write-Output "`n=================================================="
