@@ -1,4 +1,4 @@
-# Processo de Release (Release Process Manual) — v2.0.1
+# Processo de Release (Release Process Manual) — v2.0.2
 
 Este manual descreve o procedimento operacional padrão para geração, validação e publicação de novas versões do plugin **Gerador de Posts (IA)**. Ele estabelece os critérios de segurança e governança para empacotamento da distribuição.
 
@@ -148,8 +148,8 @@ Para automatizar totalmente a publicação de releases e o upload do pacote ZIP 
 2.  **Upload e Publicação Remota:**
     *   Como tokens locais de CLI (`gh`) podem expirar ou não estar configurados no terminal de desenvolvimento local, a publicação final deve ser complementada manualmente no painel do GitHub.
     *   Acesse: `https://github.com/tdvie/gerador_posts/releases/new`.
-    *   Selecione a tag **`v2.0.1`** criada via Git.
-    *   Configure o título como `v2.0.1` e copie as notas de alteração do `CHANGELOG.md` na descrição.
+    *   Selecione a tag **`v2.0.2`** criada via Git.
+    *   Configure o título como `v2.0.2` e copie as notas de alteração do `CHANGELOG.md` na descrição.
     *   Arraste e anexe o arquivo compactado `build/gerador-posts-gemini.zip` gerado.
     *   Clique em **Publish release**.
 

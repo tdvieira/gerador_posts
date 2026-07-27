@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.2 - 2026-07-27
+
+### Adicionado
+- Atualizacao e consolidacao da Release v2.0.2.
+
 ## 2.0.1 - 2026-07-26
 
 ### Adicionado
