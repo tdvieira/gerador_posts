@@ -138,17 +138,22 @@ A preparação, empacotamento e publicação de novas versões são estruturados
     powershell -ExecutionPolicy Bypass -File scripts/publish_release.ps1
     ```
 
+### 📚 Guia de Referência Documental de Releases
+
+O ecossistema documental do Pipeline Oficial de Release é segmentado de acordo com a finalidade prática de cada documento técnico:
+1.  **[RELEASE_CHEATSHEET.md](file:///C:/Users/tdvie/Local%20Sites/blog/app/public/wp-content/plugins/gerador-posts-gemini/docs/RELEASE_CHEATSHEET.md) (Referência Rápida):** Destinado ao operador da release. Guia de bolso de apenas 1 página contendo os dois comandos oficiais de publicação de forma direta.
+2.  **[PIPELINE.md](file:///C:/Users/tdvie/Local%20Sites/blog/app/public/wp-content/plugins/gerador-posts-gemini/PIPELINE.md) (Manual de Operação):** Destinado à equipe de DevOps e engenharia. Apresenta o fluxo operacional detalhado, logs de console ASCII, interfaces visuais de progresso e guia de instalação do GitHub CLI (`gh`).
+3.  **[RELEASE_PROCESS.md](file:///C:/Users/tdvie/Local%20Sites/blog/app/public/wp-content/plugins/gerador-posts-gemini/docs/releases/RELEASE_PROCESS.md) (Normativa e Governança):** Destinado a auditorias de conformidade. Descreve as políticas de versionamento SemVer, critérios lógicos de decisões GO/NO-GO de deploy e governança de commits.
+4.  **[RELEASE_ARCHITECTURE.md](file:///C:/Users/tdvie/Local%20Sites/blog/app/public/wp-content/plugins/gerador-posts-gemini/docs/architecture/RELEASE_ARCHITECTURE.md) (Manual de Engenharia):** Destinado a refatorações e evoluções do pipeline. Consolida os princípios arquiteturais (Single Source of Truth, codificação UTF-8 round-trip, exit codes, validações estruturais e categorias funcionais).
+
+---
+
 ### Instalação e Validação do GitHub CLI (gh)
 Para Windows, o método oficial principal recomendado para instalar o GitHub CLI é:
 ```powershell
 winget install --id GitHub.cli
 ```
 Como alternativa manual secundária, baixe o instalador oficial diretamente em: https://cli.github.com/
-
-Todas as validações e execuções de comandos externos do Git e do GitHub CLI (`gh`) no pipeline são executadas de forma robusta por meio de uma função auxiliar reutilizável, baseando-se exclusivamente em códigos de retorno de execução do console (`$LASTEXITCODE`). Isso engloba os comandos `git status`, `git add`, `git commit`, `git push`, `git tag`, `gh auth status`, `gh repo view`, `gh release view`, `gh release create` e `gh release upload`, eliminando completamente redirecionamentos de saída como `2>&1` ou parsing textual. Esta arquitetura torna a execução do pipeline totalmente independente de idioma, tradução do console, versão ou formatação de texto das ferramentas Git e GitHub CLI.
-
-*   **Instalação e GitHub:** O arquivo compactado `build/gerador-posts-gemini.zip` gerado é o único artefato utilizado para a instalação manual do plugin no painel do WordPress e também o arquivo oficial anexado na página de Releases do repositório no GitHub.
-*   **Propósito da Pasta build/:** O diretório `build/` concentra exclusivamente os artefatos temporários de distribuição e builds executados, garantindo que a raiz do projeto e o código de produção permaneçam organizados e livres de arquivos compactados pesados.
 
 ---
 

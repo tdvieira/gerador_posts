@@ -4,6 +4,25 @@ Este manual descreve a arquitetura, o fluxo de execução e a interface de conso
 
 ---
 
+## ⚡ Quick Start (Fluxo Operacional de Release)
+
+Para publicar uma nova versão estável do plugin, execute sequencialmente no console PowerShell da raiz do repositório:
+
+1.  **Etapa 1: Prepare Release**
+    ```powershell
+    powershell -ExecutionPolicy Bypass -File scripts/prepare_release.ps1 -Version X.Y.Z
+    ```
+    *   *Responsabilidades:* Executa a validação sintática da versão, sincroniza automaticamente as tags de versão e Stable tag no `readme.txt` e arquivos estruturais, varre os relatórios técnicos correntes sob `docs/releases/` para coletar e injetar de forma consolidada as notas sob `## Resumo para Release` no `CHANGELOG.md`, executa o build de empacotamento e a auditoria de 8 critérios do ZIP WordPress.
+    *   *Nota:* O script `build_release.ps1` é disparado internamente e não deve ser executado pelo operador.
+
+2.  **Etapa 2: Publish Release**
+    ```powershell
+    powershell -ExecutionPolicy Bypass -File scripts/publish_release.ps1
+    ```
+    *   *Responsabilidades:* Executa a auditoria de Working Tree (baseada em categorias arquiteturais de segurança), cria o commit administrativo de release, cria a tag Git anotada local, realiza o push sincronizado para a branch remota `main` do GitHub, extrai as notas de versão do `CHANGELOG.md` e publica a GitHub Release efetuando o upload do ZIP de produção.
+
+---
+
 ## 🛠️ 1. Arquitetura e Fluxo do Pipeline
 
 O processo operacional de publicação do ecossistema é consolidado em **duas etapas ativas** de execução, garantindo automação total e segurança em ambiente de produção:
@@ -24,7 +43,7 @@ graph LR
     *   **Consolidação de Release Notes Dinâmica:** Varre de forma automática a pasta `docs/releases/` identificando todos os relatórios técnicos oficiais que mencionam a versão corrente. Extrai o conteúdo contido sob a seção `## Resumo para Release` de cada relatório, agrupa e categoriza os itens (Novidades, Melhorias, Correções, Segurança, Documentação, Arquitetura), eliminando duplicidades, e insere esse bloco consolidado no `CHANGELOG.md` sem textos fixos.
     *   Invoca automaticamente o script de build para geração e validação estrutural do ZIP.
 2.  **Etapa 2: `publish_release.ps1` (Publicação e Sincronização):**
-    *   Audita a árvore de trabalho (`git status --porcelain`) através de uma validação arquitetural baseada em categorias oficiais permitidas (documentações, scripts do pipeline, manifesto do plugin, bootstrap e subsistema de updater), eliminando a necessidade de listas estáticas manuais e protegendo a Working Tree contra modificações indevidas.
+    *   Audita a árvore de trabalho (`git status --porcelain`) através de uma validação baseada em categorias oficiais carregadas dinamicamente do arquivo de configuração externo `.agents/config/pipeline-categories.json`. Isso desacopla a validação da evolução estrutural do projeto, eliminando listas estáticas do código procedural e protegendo a Working Tree de modificações indevidas em arquivos não autorizados.
     *   Comita as alterações administrativas permitidas e as documentações geradas.
     *   Gera a tag semântica local (`vMAJOR.MINOR.PATCH`).
     *   Sincroniza commits e tags com a branch remota `main`.
@@ -34,7 +53,7 @@ graph LR
 
 ### Ferramenta Técnica Complementar
 
-*   **`build_release.ps1` (Build e Validação Estrutural):** Permanecerá exclusivamente como uma ferramenta técnica complementar do pipeline, de uso restrito a manutenção, testes estruturais locais ou reconstruções pontuais manuais do pacote ZIP. Ele **não** faz parte das etapas ativas operacionais executadas pelo operador, que dispara exclusivamente `prepare_release.ps1` e depois `publish_release.ps1`.
+*   **`build_release.ps1` (Build e Validação Estrutural):** Utilizado para gerar e validar o pacote ZIP. Adota uma coleção centralizada `$root_files` para determinar os arquivos oficiais da raiz a serem incluídos no ZIP distribuído (incluindo o `readme.txt` de forma permanente), eliminando riscos de divergência entre o repositório e o pacote compactado. O script permanece exclusivamente como ferramenta técnica complementar do pipeline, de uso restrito a manutenção ou reconstruções manuais, sendo invocado automaticamente pelo `prepare_release.ps1`.
 
 ---
 

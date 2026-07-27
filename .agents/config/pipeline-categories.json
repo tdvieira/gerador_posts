@@ -1,0 +1,25 @@
+{
+  "exact_matches": [
+    "README.md",
+    "PIPELINE.md",
+    "CHANGELOG.md",
+    "readme.txt",
+    "gerador-posts-gemini.php",
+    "includes/Core/PluginBootstrap.php",
+    "includes/updater.php",
+    ".gitignore",
+    "build/.gitkeep",
+    "build/gerador-posts-gemini.zip"
+  ],
+  "wildcard_matches": [
+    "docs/*.md",
+    "docs/releases/*.md",
+    "docs/architecture/*.md",
+    ".agents/rules/*.md",
+    ".agents/memory/*.md",
+    ".agents/config/*.json",
+    "scripts/*.ps1",
+    "includes/updater/*.php",
+    "includes/updater/**/*.php"
+  ]
+}

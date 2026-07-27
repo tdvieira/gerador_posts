@@ -1,6 +1,15 @@
-# Processo de Release (Release Process Manual) — v2.0.4
+# Processo de Release (Release Process Manual) — v2.0.5
 
 Este manual descreve o procedimento operacional padrão para geração, validação e publicação de novas versões do plugin **Gerador de Posts (IA)**. Ele estabelece os critérios de segurança e governança para empacotamento da distribuição.
+
+---
+
+## 📚 Propósito e Navegação Documental
+
+Este documento detalha as políticas de governança, o versionamento SemVer e os critérios de deploy do projeto. Para outras finalidades operacionais ou técnicas de release, consulte o documento adequado:
+-   **[RELEASE_CHEATSHEET.md](../RELEASE_CHEATSHEET.md) (Referência Rápida):** Referência em 1 página contendo apenas os dois comandos oficiais do pipeline executados pelo operador.
+-   **[PIPELINE.md](../../PIPELINE.md) (Manual de Operação):** Guia prático descrevendo a interface do console, comandos de execução, saídas ASCII da esteira e parametrização.
+-   **[RELEASE_ARCHITECTURE.md](../architecture/RELEASE_ARCHITECTURE.md) (Manual de Engenharia):** Documento detalhando os princípios arquiteturais internos do pipeline (codificação UTF-8, exit codes, validações estruturais do ZIP e categorias funcionais).
 
 ---
 
@@ -36,8 +45,8 @@ O processo de empacotamento e publicação do plugin é estruturado no **Pipelin
 
 | Etapa Operacional | Script Correspondente | Responsabilidade Principal |
 | :--- | :--- | :--- |
-| **Etapa 1: Prepare Release** | `prepare_release.ps1` | Sincronização de versão, consolidação automática das Release Notes dos relatórios em `docs/releases/*.md` para o `CHANGELOG.md` sem textos fixos, geração do pacote ZIP e validação estrutural do WordPress |
-| **Etapa 2: Publish Release** | `publish_release.ps1` | Auditoria da Working tree, commit e tagging Git, sincronização com o origin, publicação automática da GitHub Release extraindo o corpo do `CHANGELOG.md` (Single Source of Truth) e upload do ZIP |
+| **Etapa 1: Prepare Release** | `prepare_release.ps1` | Sincronização de versão, consolidação automática das Release Notes dos relatórios em `docs/releases/*.md` para o `CHANGELOG.md` sem textos fixos, geração do pacote ZIP (utilizando uma coleção centralizada de arquivos de raiz oficiais, incluindo o `readme.txt`) e validação estrutural do WordPress |
+| **Etapa 2: Publish Release** | `publish_release.ps1` | Auditoria da Working Tree (baseada em categorias arquiteturais carregadas de configuração JSON externa), commit e tagging Git, sincronização com o origin, publicação da GitHub Release extraindo o corpo do `CHANGELOG.md` (Single Source of Truth) e upload do ZIP |
 
 > [!NOTE]
 > **Ferramenta Técnica de Manutenção:** O script `build_release.ps1` permanece exclusivamente como uma ferramenta técnica complementar do pipeline, destinada à reconstrução manual ou testes isolados do pacote ZIP. Ele **não** compõe o fluxo de execução ativo do operador.
@@ -149,8 +158,8 @@ Para automatizar totalmente a publicação de releases e o upload do pacote ZIP 
 2.  **Upload e Publicação Remota:**
     *   Como tokens locais de CLI (`gh`) podem expirar ou não estar configurados no terminal de desenvolvimento local, a publicação final deve ser complementada manualmente no painel do GitHub.
     *   Acesse: `https://github.com/tdvie/gerador_posts/releases/new`.
-    *   Selecione a tag **`v2.0.4`** criada via Git.
-    *   Configure o título como `v2.0.4` e copie as notas de alteração do `CHANGELOG.md` na descrição.
+    *   Selecione a tag **`v2.0.5`** criada via Git.
+    *   Configure o título como `v2.0.5` e copie as notas de alteração do `CHANGELOG.md` na descrição.
     *   Arraste e anexe o arquivo compactado `build/gerador-posts-gemini.zip` gerado.
     *   Clique em **Publish release**.
 

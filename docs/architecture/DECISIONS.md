@@ -246,3 +246,130 @@ Manter consistência absoluta e conformidade total com o repositório remoto Git
 
 ### Impacto
 *   **Positivo:** Histórico de desenvolvimento, tags e handbooks unificados sob a versão comercial real do produto (`v1.0.0`).
+
+---
+
+## ADR 09: Hardening Normativo e Congelamento do Ecossistema de IA
+
+*   **Status:** Aprovado
+*   **Data:** 2026-07-27
+
+### Contexto
+O ecossistema `.agents` de infraestrutura assistida por IA continha regras normativas críticas que poderiam ser perdidas devido a exclusões acidentais ou falta de versionamento local sistemático.
+
+### Problema
+Garantir a permanência física e histórica de todas as instruções normativas, regras de governança e metadados contra perdas de dados e modificações não autorizadas.
+
+### Alternativas Consideradas
+1.  **Manter a governança aberta a alterações livres (Rejeitado):** Falta de estabilidade operacional no ecossistema assistido por IA.
+2.  **Congelamento de Arquitetura (Adotado):** Blindar estruturalmente os diretórios da governança de IA e aplicar persistência no Git.
+
+### Decisão Adotada
+Aprovar as regras permanentes de Persistence Validation e Incremental Validation, congelando oficialmente a taxonomia sob a versão `.agents` v2.2.
+
+### Impacto
+*   **Positivo:** Blindagem estrutural contra a exclusão física acidental de metadados e estabelecimento de governança permanente para agentes.
+
+---
+
+## ADR 10: Unificação e Consolidação do Pipeline de Releases
+
+*   **Status:** Aprovado
+*   **Data:** 2026-07-27
+
+### Contexto
+A publicação de versões do plugin dependia de listas estáticas duplicadas de whitelists no script de deploy, sofria de ausência de documentação rápida em 1 página e possuía fragilidades de codificação textual sob o Windows PowerShell 5.1.
+
+### Problema
+O pipeline era suscetível a erros manuais na esteira de deploy, necessitava de atualizações constantes no código ao criar novas documentações e exibia falhas de caracteres especiais no GitHub.
+
+### Alternativas Consideradas
+1.  **Continuar com a arquitetura original baseada em listas estáticas (Rejeitado):** Custo de manutenção contínuo a cada nova release do projeto.
+2.  **Arquitetura Dinâmica Unificada baseada em Single Source of Truth e Categorias (Adotado):** Automatizar de forma completa a extração de notas, validação de arquivos por categorias e decodificação UTF-8 explícita de ponta a ponta.
+
+### Decisão Adotada
+Consolidar a esteira operacional em duas etapas exclusivas operadas pelo desenvolvedor (`prepare_release.ps1` e `publish_release.ps1`), mantendo `build_release.ps1` como utilitário complementar interno. Centralizar notas de lançamento no `CHANGELOG.md` extraídas dinamicamente de relatórios técnicos sob a seção `## Resumo para Release`, repassando-as ao GitHub CLI via arquivo temporário com decodificação UTF-8 de ida e volta. Mapear a Working Tree por categorias arquiteturais funcionais, eliminando as listas estáticas do código de deploy.
+
+### Impacto
+*   **Positivo:** A esteira de deploy tornou-se totalmente livre de manutenção manual futura a cada introdução de novos relatórios ou scripts, blindando o fluxo contra regressões lógicas ou corrupções de acentos.
+
+---
+
+## ADR 11: Centralização de Arquivos Raiz do Empacotamento de Releases
+
+*   **Status:** Aprovado
+*   **Data:** 2026-07-27
+
+### Contexto
+No script original de build (`build_release.ps1`), a cópia de arquivos produtivos localizados na raiz do repositório para o diretório temporário de empacotamento era implementada por múltiplas instruções individuais `Copy-Item`.
+
+### Problema
+O acúmulo de instruções duplicadas dificultava a manutenção de caminhos e resultou na ausência acidental do arquivo `readme.txt` (WordPress) no ZIP gerado para distribuição, provocando inconsistência entre o repositório e o pacote distribuído.
+
+### Alternativas Consideradas
+1.  **Adicionar outra instrução Copy-Item manual (Rejeitado):** Manteria a duplicação de chamadas, conservando a suscetibilidade a novos esquecimentos.
+2.  **Centralização sob uma Coleção `$root_files` (Adotado):** Declarar explicitamente todos os arquivos produtivos permitidos da raiz do repositório em um array e realizar a cópia via loop síncrono `foreach`.
+
+### Decisão Adotada
+Refatorar a etapa de cópia de arquivos da raiz no `build_release.ps1` criando a coleção `$root_files = @("gerador-posts-gemini.php", "admin-ui.php", "LICENSE", "README.md", "readme.txt", "CHANGELOG.md", "SECURITY.md")` e copiando-os em um único loop `foreach`.
+
+### Impacto
+*   **Positivo:** Garantia permanente de inclusão do `readme.txt` no ZIP estável, desduplicação do código de deploy e eliminação de manutenção manual difusa de arquivos da raiz.
+
+---
+
+## ADR 12: Compatibilidade e Resiliência na API do Plugin Update Checker (PUC)
+
+*   **Status:** Aprovado
+*   **Data:** 2026-07-27
+
+### Contexto
+O plugin utiliza a biblioteca externa Plugin Update Checker (PUC) para gerenciar o recebimento de atualizações e a exibição de notas na janela "Ver detalhes" do WordPress.
+
+### Problema
+Uma chamada direta ao método `setReadmeFilename('readme.txt')` provocava um erro fatal no carregamento do plugin (`Fatal error: Call to undefined method ...::setReadmeFilename()`) sob a versão embarcada do PUC (v5.7), inviabilizando a ativação no WordPress.
+
+### Alternativas Consideradas
+1.  **Atualizar a biblioteca PUC para uma versão experimental (Rejeitado):** Introduziria riscos de novas instabilidades ou regressões de API em produção.
+2.  **Remover a chamada direta e encapsular com checagem ativa (Adotado):** Eliminar a instrução direta de carregamento do readme.txt e envolver qualquer recurso opcional ou de versão futura no método `method_exists()` do PHP.
+
+### Decisão Adotada
+Refatorar o arquivo `includes/updater.php` para isolar a instância do `GitHubApi` e invocar qualquer método não nativo do PUC v5.7 de forma condicional:
+```php
+if (method_exists($vcsApi, 'setReadmeFilename')) {
+    $vcsApi->setReadmeFilename('readme.txt');
+}
+```
+
+### Justificativa
+O PUC v5.7 resolve e busca de forma automatizada o arquivo `readme.txt` na raiz da branch configurada por padrão. O uso de verificações condicionais impede o erro fatal no carregamento e confere compatibilidade retroativa resiliente.
+
+### Impacto
+*   **Positivo:** Restauração imediata da inicialização do plugin, funcionamento integral da janela de atualização e segurança total contra regressões causadas por atualizações da biblioteca de terceiros.
+
+---
+
+## ADR 13: Desacoplamento de Categorias de Release via Configuração Externa (v2.0.5)
+
+*   **Status:** Aprovado
+*   **Data:** 2026-07-27
+
+### Contexto
+O script de publicação (`publish_release.ps1`) executa uma auditoria técnica na Working Tree (`Test-IsFileAllowed`) impedindo o deploy se arquivos produtivos forem indevidamente alterados.
+
+### Problema
+A lógica de classificação e validação utilizava Whitelists e categorias codificadas de forma procedural diretamente no código do script de deploy. A inclusão de novas frentes de documentação (como os novos manuais), novos relatórios técnicos ou configurações exigia a modificação síncrona do script, provocando bloqueios de publicação (como na versão 2.0.5).
+
+### Alternativas Consideradas
+1.  **Inserir novas whitelists manuais no script (Rejeitado):** Eleva o risco de regressões lógicas e mantém o script atrelado à evolução física do projeto.
+2.  **Desacoplamento por JSON de Configuração Externa (Adotado):** Adotar o princípio *Configuration over Code*, centralizando a especificação de categorias autorizadas em arquivo de dados no repositório.
+
+### Decisão Adotada
+Criar o arquivo de configuração arquitetural `.agents/config/pipeline-categories.json` definindo as coleções de arquivos produtivos exatos (`exact_matches`) e padrões de wildcards (`wildcard_matches`). Refatorar o script `publish_release.ps1` para carregar este JSON de forma dinâmica e validar a Working Tree. Abortar o deploy com erro claro caso o arquivo de configuração esteja ausente ou corrompido.
+
+### Impacto
+*   **Positivo:** Desacoplamento de baixo nível completo da esteira operacional. Qualquer nova categoria ou relatório técnico futuro será aceito automaticamente pela edição do arquivo JSON de configuração, blindando a integridade procedural dos scripts de deploy contra regressões.
+
+
+
+

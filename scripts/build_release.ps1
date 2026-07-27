@@ -20,13 +20,23 @@ New-Item -ItemType Directory -Path $temp_dir | Out-Null
 $plugin_dir = Join-Path $temp_dir "gerador-posts-gemini"
 New-Item -ItemType Directory -Path $plugin_dir | Out-Null
 
-# Copiar arquivos raízes necessários
-Copy-Item (Join-Path $source_dir "gerador-posts-gemini.php") $plugin_dir
-Copy-Item (Join-Path $source_dir "admin-ui.php") $plugin_dir
-Copy-Item (Join-Path $source_dir "LICENSE") $plugin_dir
-Copy-Item (Join-Path $source_dir "README.md") $plugin_dir
-Copy-Item (Join-Path $source_dir "CHANGELOG.md") $plugin_dir
-Copy-Item (Join-Path $source_dir "SECURITY.md") $plugin_dir
+# Copiar arquivos raízes oficiais definidos de forma centralizada
+$root_files = @(
+    "gerador-posts-gemini.php",
+    "admin-ui.php",
+    "LICENSE",
+    "README.md",
+    "readme.txt",
+    "CHANGELOG.md",
+    "SECURITY.md"
+)
+
+foreach ($file in $root_files) {
+    $src_file = Join-Path $source_dir $file
+    if (Test-Path $src_file) {
+        Copy-Item $src_file $plugin_dir
+    }
+}
 
 # Copiar diretórios necessários
 Copy-Item (Join-Path $source_dir "assets") $plugin_dir -Recurse

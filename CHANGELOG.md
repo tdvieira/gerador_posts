@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.0.5 - 2026-07-27
+
+### Novidades
+- Unificação e automação da arquitetura documental de Release Notes sob o princípio de Single Source of Truth (CHANGELOG.md).
+- Oficialização do fluxo operacional do pipeline de deploy em apenas duas etapas ativas (Prepare e Publish).
+- Extração dinâmica e consolidação das seções "Resumo para Release" de relatórios técnicos correntes no CHANGELOG.md.
+- Sincronização automática entre o CHANGELOG.md local e as notas da GitHub Release remota via --notes-file do GitHub CLI.
+- Redirecionamento da ferramenta build_release.ps1 como utilitário técnico complementar e autônomo para manutenção de builds.
+
 ## 2.0.4 - 2026-07-27
 
 ### Correções

@@ -20,6 +20,26 @@ cmd /c chcp 437 > $null
 $script_dir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $source_dir = Split-Path -Parent $script_dir
 
+# Carregar configuracao arquitetural das categorias da Working Tree
+$config_path = Join-Path $source_dir ".agents/config/pipeline-categories.json"
+if (!(Test-Path $config_path)) {
+    [Console]::Error.WriteLine("[ERRO] A configuracao arquitetural da Pipeline Oficial de Release encontra-se invalida (Arquivo nao encontrado).")
+    exit 1
+}
+
+$global:PipelineCategories = $null
+try {
+    $categories_content = Get-Content -Path $config_path -Encoding UTF8 -Raw
+    $global:PipelineCategories = ConvertFrom-Json $categories_content
+    if ($null -eq $global:PipelineCategories -or $null -eq $global:PipelineCategories.exact_matches -or $null -eq $global:PipelineCategories.wildcard_matches) {
+        throw "Estrutura do JSON invalida."
+    }
+} catch {
+    [Console]::Error.WriteLine("[ERRO] A configuracao arquitetural da Pipeline Oficial de Release encontra-se invalida ou corrompida.")
+    [Console]::Error.WriteLine("Detalhes: $_")
+    exit 1
+}
+
 # Funcao auxiliar reutilizavel para execucao padronizada de comandos externos
 function Execute-ExternalCommand {
     param (
@@ -102,45 +122,49 @@ function Execute-ExternalCommand {
     return $null
 }
 
+# Funcao auxiliar para converter padroes glob do JSON em regex com semantica correta de filesystem.
+# Semantica: * casa qualquer caractere EXCETO / (um unico nivel de diretorio).
+#             ** casa qualquer caractere INCLUINDO / (qualquer profundidade).
+function Convert-GlobToRegex {
+    param (
+        [string]$GlobPattern
+    )
+
+    # Escape all regex-special characters first, then restore glob semantics
+    $escaped = [regex]::Escape($GlobPattern)
+
+    # Restore ** (escaped as \*\*) -> .* (any depth, crosses /)
+    $escaped = $escaped -replace '\\\*\\\*', '.*'
+
+    # Restore remaining * (escaped as \*) -> [^/]* (single directory level, no /)
+    $escaped = $escaped -replace '\\\*', '[^/]*'
+
+    return "^$escaped$"
+}
+
 # Funcao auxiliar para validar se um arquivo e permitido no processo de release
 function Test-IsFileAllowed {
     param (
         [string]$FilePathNorm
     )
 
-    # Categoria 1: Documentacao Oficial (README, PIPELINE, CHANGELOG, readme.txt, docs/releases/*.md, regras .agents/rules/*.md)
-    if ($FilePathNorm -eq "README.md" -or 
-        $FilePathNorm -eq "PIPELINE.md" -or 
-        $FilePathNorm -eq "CHANGELOG.md" -or 
-        $FilePathNorm -eq "readme.txt" -or 
-        $FilePathNorm -like "docs/releases/*.md" -or
-        $FilePathNorm -like ".agents/rules/*.md") {
-        return $true
+    if ($null -eq $global:PipelineCategories) {
+        return $false
     }
 
-    # Categoria 2: Scripts Oficiais do Pipeline (todos os arquivos .ps1 sob a pasta scripts/)
-    if ($FilePathNorm -like "scripts/*.ps1") {
-        return $true
+    # Validar correspondencias exatas
+    foreach ($exact in $global:PipelineCategories.exact_matches) {
+        if ($FilePathNorm -eq $exact) {
+            return $true
+        }
     }
 
-    # Categoria 3: Manifesto Principal do Plugin e Classes de Ciclo de Vida/Bootstrap
-    if ($FilePathNorm -eq "gerador-posts-gemini.php" -or 
-        $FilePathNorm -eq "includes/Core/PluginBootstrap.php") {
-        return $true
-    }
-
-    # Categoria 4: Subsistema do Mecanismo de Atualizacao (includes/updater.php e arquivos relacionados a updates em includes/)
-    if ($FilePathNorm -eq "includes/updater.php" -or 
-        $FilePathNorm -like "includes/updater/*.php" -or
-        $FilePathNorm -like "includes/updater/**/*.php") {
-        return $true
-    }
-
-    # Categoria 5: Configuracoes de Infraestrutura e Build (.gitignore, gitkeeps e o ZIP gerado)
-    if ($FilePathNorm -eq ".gitignore" -or 
-        $FilePathNorm -eq "build/.gitkeep" -or 
-        $FilePathNorm -eq "build/gerador-posts-gemini.zip") {
-        return $true
+    # Validar correspondencias com wildcards (glob -> regex com semantica de filesystem)
+    foreach ($wildcard in $global:PipelineCategories.wildcard_matches) {
+        $regexPattern = Convert-GlobToRegex -GlobPattern $wildcard
+        if ($FilePathNorm -match $regexPattern) {
+            return $true
+        }
     }
 
     return $false
@@ -210,7 +234,7 @@ if (!(Test-Path $zip_path)) {
 Write-Output "[OK] Pacote ZIP localizado e pre-validado."
 
 # 7. Validar a working tree (arquivos permitidos de release vs arquivos soltos de desenvolvimento)
-$status = Execute-ExternalCommand -Command "git" -Arguments @("status", "--porcelain") -CaptureOutput $true
+$status = Execute-ExternalCommand -Command "git" -Arguments @("status", "--porcelain", "--untracked-files=all") -CaptureOutput $true
 if ($LASTEXITCODE -ne 0) {
     Write-Output "[ERRO] Falha ao executar git status."
     exit 1
@@ -443,7 +467,7 @@ $ErrorActionPreference = "Continue"
 Write-Output "[INFO] Adicionando arquivos e relatorios oficiais de release ao Git..."
 
 # Capturar e adicionar de forma dinamica todos os arquivos modificados/novos que pertençam as categorias permitidas
-$status_raw = Execute-ExternalCommand -Command "git" -Arguments @("status", "--porcelain") -CaptureOutput $true
+$status_raw = Execute-ExternalCommand -Command "git" -Arguments @("status", "--porcelain", "--untracked-files=all") -CaptureOutput $true
 if ($status_raw) {
     $lines = @()
     if ($status_raw -is [array]) {
@@ -468,7 +492,7 @@ if ($status_raw) {
 $ErrorActionPreference = $current_pref
 
 # Verificar se a working tree contem qualquer alteracao externa nao permitida
-$post_status = Execute-ExternalCommand -Command "git" -Arguments @("status", "--porcelain") -CaptureOutput $true
+$post_status = Execute-ExternalCommand -Command "git" -Arguments @("status", "--porcelain", "--untracked-files=all") -CaptureOutput $true
 if ($LASTEXITCODE -ne 0) {
     Write-Output "[ERRO] Falha ao verificar o status do Git pos-release."
     exit 1

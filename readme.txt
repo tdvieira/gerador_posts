@@ -4,7 +4,7 @@ Tags: post generator, ai writer, gemini, openai, auto post
 Requires at least: 5.8
 Tested up to: 7.0.2
 Requires PHP: 8.0
-Stable tag: 2.0.4
+Stable tag: 2.0.5
 License: Proprietary
 License URI: LICENSE
 

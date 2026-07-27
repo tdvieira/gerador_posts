@@ -23,11 +23,16 @@ $updateChecker = PucFactory::buildUpdateChecker(
 // Branch estavel
 $updateChecker->setBranch('main');
 
-// Definir readme.txt como fonte oficial de metadados para a janela "Ver detalhes"
-$updateChecker->getVcsApi()->setReadmeFilename('readme.txt');
-
 // Utilizar o ZIP anexado a Release
-$updateChecker->getVcsApi()->enableReleaseAssets('/\.zip$/i');
+$vcsApi = $updateChecker->getVcsApi();
+if ($vcsApi) {
+    $vcsApi->enableReleaseAssets('/\.zip$/i');
+    
+    // Encapsular metodos opcionais que possam nao existir na versao embarcada do PUC (ex: setReadmeFilename)
+    if (method_exists($vcsApi, 'setReadmeFilename')) {
+        $vcsApi->setReadmeFilename('readme.txt');
+    }
+}
 
 add_action('admin_init', function () use ($updateChecker) {
     $updateChecker->checkForUpdates();

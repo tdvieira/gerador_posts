@@ -10,11 +10,11 @@ Este arquivo fornece um resumo executivo unificado do estado atualizado do proje
 | :--- | :--- |
 | **Nome do Projeto** | Gerador de Posts (IA) |
 | **Status do Projeto** | Estável e Homologado |
-| **Versão Estável** | `v1.0.0` |
-| **Próxima Release** | `v1.1.0` |
+| **Versão Estável** | `v2.0.9` |
+| **Próxima Release** | `v2.1.0` |
 | **Branch Principal** | `main` (remoto oficial apontando para GitHub) |
 | **Repositório GitHub** | `https://github.com/tdvieira/gerador_posts.git` |
-| **Release Oficial** | Tag `v1.0.0` e commit semântico correspondente enviados com sucesso. |
+| **Release Oficial** | Tag `v2.0.9` e commit semântico correspondente enviados com sucesso. |
 | **Developer Handbook** | Localizado em [docs/](../../docs/) |
 | **Estado da Documentação**| Concluída, revisada por qualidade e relocada (100% de links relativos portáveis). |
 | **Arquitetura de Suporte a IA**| Versão `.agents` em estado congelado. |
@@ -25,6 +25,9 @@ Este arquivo fornece um resumo executivo unificado do estado atualizado do proje
 | **Segurança** | Proteção ativa de Nonces, Capabilities (`manage_options`), SSRF (`wp_http_validate_url`) e SSL Verify dinâmico. |
 | **Performance** | Cache persistente de 12 horas por Transients do WordPress com invalidação ativa via hooks. |
 | **Processo de Dev** | Fases estritas coordenadas via scripts de garantia de qualidade (QA), fortalecidas pelos princípios de validação. |
+| **Empacotamento de Release**| Determinado pela coleção centralizada de arquivos de raiz `$root_files` no `build_release.ps1` (incluindo o `readme.txt`). |
+| **Validação da Working Tree**| Desacoplada e baseada na especificação do arquivo de configuração externo `.agents/config/pipeline-categories.json`. |
+| **Mecanismo de Atualização**| Integrado ao Plugin Update Checker (PUC v5.7) via APIs públicas e proteção contra erros fatais de métodos inexistentes. |
 | **Convenções do Projeto**| Branches baseadas em `feature/` e `fix/`, Commits Semânticos e evoluções geridas por Issues. |
 | **Estado Geral** | **Pronto para evolução de funcionalidades na v1.1.0 sob a governança.** |
 
@@ -37,8 +40,10 @@ Toda a documentação corporativa de engenharia e os relatórios técnicos resid
 *   **[Workflow de Desenvolvimento](../../docs/architecture/DEVELOPMENT_WORKFLOW.md):** Processo completo de engenharia, definição de concluído (DoD) e padrões de código WordPress.
 *   **[Manual de Arquitetura](../../docs/architecture/ARCHITECTURE.md):** Diagramação Mermaid (componentes, transients e segurança) e integrações de texto/imagem de IAs.
 *   **[Manual de Processo de Release](../../docs/releases/RELEASE_PROCESS.md):** Regras de homologação, commits Git, tags SemVer, empacotamento do ZIP de produção e critérios de decisão GO/NO-GO.
+*   **[Cheatsheet de Release](../../docs/RELEASE_CHEATSHEET.md):** Guia operacional rápido de 1 página com os comandos oficiais da esteira.
+*   **[Arquitetura de Release](../../docs/architecture/RELEASE_ARCHITECTURE.md):** Manual consolidando todos os princípios permanentes e estratégias da pipeline (UTF-8, categorias, exit codes).
 *   **[Manual de Agentes e Workflows](../../docs/governance/AGENTS.md):** Catálogo de personas especialistas do AG Kit e ordem de execução de auditorias do ciclo de garantia de qualidade (QA).
-*   **[Registro de Decisões Técnicas (ADR)](../../docs/architecture/DECISIONS.md):** Diário cronológico de 8 decisões de engenharia adotadas no desenvolvimento e seus impactos.
+*   **[Registro de Decisões Técnicas (ADR)](../../docs/architecture/DECISIONS.md):** Diário cronológico de decisões de engenharia adotadas no desenvolvimento e seus impactos.
 
 ---
 
