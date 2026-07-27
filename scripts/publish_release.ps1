@@ -230,13 +230,23 @@ if (Test-Path $local_temp_zip) {
 }
 
 # Adicionar ao Git de forma automatica os arquivos previstos e relatorios gerados pelo pipeline de release
+# Desativamos temporariamente a interrupcao por erros nativos para ignorar avisos menores do Git
+$current_pref = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+
 Write-Output "[INFO] Adicionando arquivos e relatorios oficiais de release ao Git..."
 foreach ($allowed in $allowed_files) {
+    # Nao adicionar o ZIP pois ele esta no .gitignore de forma intencional
+    if ($allowed -eq "build/gerador-posts-gemini.zip") {
+        continue
+    }
     $allowed_abs = Join-Path $source_dir ($allowed.Replace("/", [System.IO.Path]::DirectorySeparatorChar))
     if (Test-Path $allowed_abs) {
         git add $allowed_abs 2>$null
     }
 }
+
+$ErrorActionPreference = $current_pref
 
 # Verificar se a working tree contem qualquer alteracao externa nao permitida
 $post_status = git status --porcelain
