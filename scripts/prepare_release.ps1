@@ -68,7 +68,8 @@ if ($Version -eq $old_version) {
         "includes/Core/PluginBootstrap.php",
         "README.md",
         "CHANGELOG.md",
-        "docs/releases/RELEASE_PROCESS.md"
+        "docs/releases/RELEASE_PROCESS.md",
+        "readme.txt"
     )
 
     foreach ($file_rel in $files_to_update) {
@@ -152,6 +153,10 @@ if ($Version -eq $old_version) {
                     $new_section = "## $Version - $today`r`n`r`n$consolidated_text`r`n`r`n## $old_version"
                     $content = $content.Replace($target_section, $new_section)
                 }
+            } elseif ($file_rel -eq "readme.txt") {
+                # Sincronizacao de Stable tag e Version para readme.txt
+                $content = $content -replace "Stable tag:\s*$($old_version.Replace('.', '\.'))", "Stable tag: $Version"
+                $content = $content -replace "Version:\s*$($old_version.Replace('.', '\.'))", "Version: $Version"
             } else {
                 # Substituicao simples da string da versao anterior pela nova versao
                 $content = $content.Replace($old_version, $Version)

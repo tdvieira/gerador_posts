@@ -114,6 +114,12 @@ Para manter a organização do código-fonte e do acervo documental de desenvolv
 *   **`includes/`**: Armazena as classes PHP divididas de forma modular e seguindo o autoloader PSR-4 (`Core`, `AI`, `Controllers`, `Services`, `Providers`).
 *   **`vendor/`**: Guarda dependências necessárias ao plugin em produção, como a biblioteca `plugin-update-checker` para atualizações automáticas via GitHub.
 
+## 📄 Dualidade de Documentação (README.md vs readme.txt)
+
+O projeto adota uma arquitetura de documentação com propósitos distintos para otimizar o consumo pelo repositório GitHub e pelo ecossistema do CMS:
+*   **`README.md` (Destinado ao GitHub):** Focado nos desenvolvedores e operadores. Contém guias de infraestrutura, arquitetura de pipeline, diagramas de fluxo de geração, instruções de dependência e governança do projeto.
+*   **`readme.txt` (Destinado ao WordPress):** Formatado no padrão oficial do WordPress.org e utilizado pelo mecanismo do Plugin Update Checker (PUC). Serve como fonte oficial para fornecer as informações e descrições na modal "Ver detalhes" de atualizações do painel administrativo do WordPress.
+
 ---
 
 ## 🚀 Release
@@ -127,7 +133,7 @@ A preparação, empacotamento e publicação de novas versões são estruturados
     ```powershell
     powershell -ExecutionPolicy Bypass -File scripts/prepare_release.ps1 -Version X.Y.Z
     ```
-*   **Etapa 2: Publish Release (Publicação e Sincronização):** Publicação automatizada de commits e tags Git, envio para o repositório remoto, criação da release no GitHub com upload do ZIP de produção e publicação automática das Release Notes (extraídas do `CHANGELOG.md` para a versão corrente como única fonte de verdade). Adiciona dinamicamente com `git add` todos os documentos de release à Working Tree limpa, bloqueando o deploy em caso de qualquer alteração de código externa inesperada:
+*   **Etapa 2: Publish Release (Publicação e Sincronização):** Publicação automatizada de commits e tags Git, envio para o repositório remoto, criação da release no GitHub com upload do ZIP de produção e publicação automática das Release Notes (extraídas do `CHANGELOG.md` para a versão corrente como única fonte de verdade). Adiciona automaticamente ao Git os arquivos alterados através de um mapeamento dinâmico baseado em categorias arquiteturais (documentações, scripts do pipeline, manifesto principal, bootstrap e o subsistema de updater), eliminando manutenções manuais em listas estáticas de arquivos, enquanto barra rigidamente qualquer modificação estranha ao escopo de release por segurança:
     ```powershell
     powershell -ExecutionPolicy Bypass -File scripts/publish_release.ps1
     ```

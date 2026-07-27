@@ -12,10 +12,6 @@ if (!file_exists($puc)) {
 
 require_once $puc;
 
-add_action('admin_notices', function () {
-    echo '<div class="notice notice-success"><p>Updater carregado com sucesso.</p></div>';
-});
-
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
 $updateChecker = PucFactory::buildUpdateChecker(
@@ -24,26 +20,15 @@ $updateChecker = PucFactory::buildUpdateChecker(
     'gerador-posts-gemini'
 );
 
-// Branch estável
+// Branch estavel
 $updateChecker->setBranch('main');
 
-// Utilizar o ZIP anexado à Release
+// Definir readme.txt como fonte oficial de metadados para a janela "Ver detalhes"
+$updateChecker->getVcsApi()->setReadmeFilename('readme.txt');
+
+// Utilizar o ZIP anexado a Release
 $updateChecker->getVcsApi()->enableReleaseAssets('/\.zip$/i');
 
 add_action('admin_init', function () use ($updateChecker) {
-    delete_site_transient('update_plugins');
     $updateChecker->checkForUpdates();
 });
-
-// add_action('admin_init', function () use ($updateChecker) {
-//     if (!current_user_can('manage_options')) {
-//         return;
-//     }
-
-//     $updateChecker->checkForUpdates();
-
-//     echo '<pre>';
-//     var_dump($updateChecker->getUpdateState());
-//     echo '</pre>';
-//     exit;
-// });

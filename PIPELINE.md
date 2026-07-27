@@ -20,14 +20,15 @@ graph LR
 1.  **Etapa 1: `prepare_release.ps1` (Preparação e Build):**
     *   Valida sintaxe da versão (`MAJOR.MINOR.PATCH`).
     *   Substitui de forma automática a versão corrente no cabeçalho do plugin, em constantes e em arquivos operacionais.
+    *   **Sincronização do readme.txt (WordPress):** Atualiza de forma automática as strings `Stable tag` e `Version` no arquivo `readme.txt` (utilizado pelo Plugin Update Checker no ecossistema WordPress) para garantir integridade e eliminar manutenção manual do arquivo de metadados.
     *   **Consolidação de Release Notes Dinâmica:** Varre de forma automática a pasta `docs/releases/` identificando todos os relatórios técnicos oficiais que mencionam a versão corrente. Extrai o conteúdo contido sob a seção `## Resumo para Release` de cada relatório, agrupa e categoriza os itens (Novidades, Melhorias, Correções, Segurança, Documentação, Arquitetura), eliminando duplicidades, e insere esse bloco consolidado no `CHANGELOG.md` sem textos fixos.
     *   Invoca automaticamente o script de build para geração e validação estrutural do ZIP.
 2.  **Etapa 2: `publish_release.ps1` (Publicação e Sincronização):**
-    *   Audita a árvore de trabalho (`git status --porcelain`).
+    *   Audita a árvore de trabalho (`git status --porcelain`) através de uma validação arquitetural baseada em categorias oficiais permitidas (documentações, scripts do pipeline, manifesto do plugin, bootstrap e subsistema de updater), eliminando a necessidade de listas estáticas manuais e protegendo a Working Tree contra modificações indevidas.
     *   Comita as alterações administrativas permitidas e as documentações geradas.
     *   Gera a tag semântica local (`vMAJOR.MINOR.PATCH`).
     *   Sincroniza commits e tags com a branch remota `main`.
-    *   **Release Notes Unificada (Single Source of Truth):** Localiza e extrai de forma 100% automatizada a seção correspondente da versão no `CHANGELOG.md` e a utiliza como corpo da release gerada no GitHub via GitHub CLI (`gh`), mantendo a sincronização entre os relatórios locais, o CHANGELOG.md e o painel remoto.
+    *   **Release Notes Unificada (Single Source of Truth):** Localiza e extrai de forma 100% automatizada a seção correspondente da versão no `CHANGELOG.md` e a utiliza como corpo da release gerada no GitHub via GitHub CLI (`gh`), mantendo a sincronização entre os relatórios locais, o CHANGELOG.md e o painel remoto. Todo o fluxo de leitura, gravação do arquivo temporário e publicação utiliza codificação UTF-8 explícita de ponta a ponta, com validação round-trip de integridade para blindar acentos, cedilhas e símbolos markdown.
     *   Efetua o upload do ZIP validado.
     *   Executa testes de integridade de pós-deploy.
 

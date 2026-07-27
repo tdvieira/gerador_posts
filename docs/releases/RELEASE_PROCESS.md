@@ -1,4 +1,4 @@
-# Processo de Release (Release Process Manual) — v2.0.3
+# Processo de Release (Release Process Manual) — v2.0.4
 
 Este manual descreve o procedimento operacional padrão para geração, validação e publicação de novas versões do plugin **Gerador de Posts (IA)**. Ele estabelece os critérios de segurança e governança para empacotamento da distribuição.
 
@@ -52,12 +52,12 @@ O fluxo de publicação de novas versões segue obrigatoriamente a sequência de
     ```powershell
     powershell -ExecutionPolicy Bypass -File scripts/prepare_release.ps1 -Version X.Y.Z
     ```
-    O script valida o padrão de versão, atualiza os arquivos estruturais do plugin, lê dinamicamente as seções `## Resumo para Release` de todos os relatórios da versão corrente no diretório `docs/releases/`, consolida as informações por categoria no `CHANGELOG.md` (Single Source of Truth) e aciona automaticamente a geração e a auditoria estrutural (.NET) do ZIP.
+    O script valida o padrão de versão, atualiza os arquivos estruturais do plugin, sincroniza automaticamente as tags de versão e Stable tag no `readme.txt` (WordPress), lê dinamicamente as seções `## Resumo para Release` de todos os relatórios da versão corrente no diretório `docs/releases/`, consolida as informações por categoria no `CHANGELOG.md` (Single Source of Truth) e aciona automaticamente a geração e a auditoria estrutural (.NET) do ZIP.
 2.  **Etapa 2: Publish Release (Publicação e Sincronização):** O operador executa o script de publicação para efetivar a release:
     ```powershell
     powershell -ExecutionPolicy Bypass -File scripts/publish_release.ps1
     ```
-    O script audita a Working Tree, cria o commit e a tag correspondentes, sincroniza as alterações com a branch remota principal, localiza e extrai de forma automática o bloco da versão corrente no `CHANGELOG.md` e o utiliza integralmente como as Release Notes da release criada no GitHub via GitHub CLI (`gh`), fazendo o upload do pacote ZIP e concluindo o processo de forma unificada. Adiciona dinamicamente com `git add` todos os documentos de release à Working Tree limpa, bloqueando o deploy em caso de qualquer alteração de código externa inesperada.
+    O script audita a Working Tree com base em categorias arquiteturais permitidas (documentações oficiais, scripts do pipeline, manifesto principal, bootstrap e subsistema de updater), eliminando a dependência de listas estáticas manuais, cria o commit e a tag correspondentes, sincroniza as alterações com a branch remota principal, localiza e extrai de forma automática o bloco da versão corrente no `CHANGELOG.md` e o utiliza integralmente como as Release Notes da release criada no GitHub via GitHub CLI (`gh`), fazendo o upload do pacote ZIP e concluindo o processo de forma unificada. Esse fluxo utiliza codificação UTF-8 explícita de ponta a ponta, contando com validação round-trip automática para impedir corrupção de caracteres especiais no GitHub. Adiciona dinamicamente com `git add` todos os documentos oficiais modificados que pertençam às categorias permitidas da release, bloqueando o deploy em caso de qualquer alteração de código externa inesperada ao processo de release.
 
 ---
 
@@ -149,8 +149,8 @@ Para automatizar totalmente a publicação de releases e o upload do pacote ZIP 
 2.  **Upload e Publicação Remota:**
     *   Como tokens locais de CLI (`gh`) podem expirar ou não estar configurados no terminal de desenvolvimento local, a publicação final deve ser complementada manualmente no painel do GitHub.
     *   Acesse: `https://github.com/tdvie/gerador_posts/releases/new`.
-    *   Selecione a tag **`v2.0.3`** criada via Git.
-    *   Configure o título como `v2.0.3` e copie as notas de alteração do `CHANGELOG.md` na descrição.
+    *   Selecione a tag **`v2.0.4`** criada via Git.
+    *   Configure o título como `v2.0.4` e copie as notas de alteração do `CHANGELOG.md` na descrição.
     *   Arraste e anexe o arquivo compactado `build/gerador-posts-gemini.zip` gerado.
     *   Clique em **Publish release**.
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.4 - 2026-07-27
+
+### Correções
+- Correção do erro de interpretação de argumentos do Git (pathspec) no script de deploy através de serialização robusta compatível com CommandLineToArgvW.
+- Garantia de que mensagens de commit multilinha e com espaços sejam transmitidas de forma íntegra.
+
 ## 2.0.3 - 2026-07-27
 
 ### Melhorias

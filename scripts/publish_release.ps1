@@ -108,30 +108,38 @@ function Test-IsFileAllowed {
         [string]$FilePathNorm
     )
 
-    $static_allowed = @(
-        "gerador-posts-gemini.php",
-        "includes/Core/PluginBootstrap.php",
-        "README.md",
-        "CHANGELOG.md",
-        "PIPELINE.md",
-        "build/gerador-posts-gemini.zip",
-        "build/.gitkeep",
-        ".gitignore",
-        ".agents/rules/project-governance.md",
-        ".agents/rules/documentation.md",
-        "scripts/prepare_release.ps1",
-        "scripts/build_release.ps1",
-        "scripts/publish_release.ps1"
-    )
-
-    foreach ($static in $static_allowed) {
-        if ($FilePathNorm -eq $static) {
-            return $true
-        }
+    # Categoria 1: Documentacao Oficial (README, PIPELINE, CHANGELOG, readme.txt, docs/releases/*.md, regras .agents/rules/*.md)
+    if ($FilePathNorm -eq "README.md" -or 
+        $FilePathNorm -eq "PIPELINE.md" -or 
+        $FilePathNorm -eq "CHANGELOG.md" -or 
+        $FilePathNorm -eq "readme.txt" -or 
+        $FilePathNorm -like "docs/releases/*.md" -or
+        $FilePathNorm -like ".agents/rules/*.md") {
+        return $true
     }
 
-    # Whitelist baseada em padroes (wildcards) para relatorios e manuais oficiais de release
-    if ($FilePathNorm -like "docs/releases/*.md") {
+    # Categoria 2: Scripts Oficiais do Pipeline (todos os arquivos .ps1 sob a pasta scripts/)
+    if ($FilePathNorm -like "scripts/*.ps1") {
+        return $true
+    }
+
+    # Categoria 3: Manifesto Principal do Plugin e Classes de Ciclo de Vida/Bootstrap
+    if ($FilePathNorm -eq "gerador-posts-gemini.php" -or 
+        $FilePathNorm -eq "includes/Core/PluginBootstrap.php") {
+        return $true
+    }
+
+    # Categoria 4: Subsistema do Mecanismo de Atualizacao (includes/updater.php e arquivos relacionados a updates em includes/)
+    if ($FilePathNorm -eq "includes/updater.php" -or 
+        $FilePathNorm -like "includes/updater/*.php" -or
+        $FilePathNorm -like "includes/updater/**/*.php") {
+        return $true
+    }
+
+    # Categoria 5: Configuracoes de Infraestrutura e Build (.gitignore, gitkeeps e o ZIP gerado)
+    if ($FilePathNorm -eq ".gitignore" -or 
+        $FilePathNorm -eq "build/.gitkeep" -or 
+        $FilePathNorm -eq "build/gerador-posts-gemini.zip") {
         return $true
     }
 
@@ -185,7 +193,7 @@ if (!(Test-Path $changelog_file)) {
     Write-Output "[ERRO] Arquivo CHANGELOG.md nao encontrado na raiz do projeto."
     exit 1
 }
-$changelog_content = Get-Content $changelog_file -Raw
+$changelog_content = Get-Content $changelog_file -Raw -Encoding UTF8
 if ($changelog_content -notmatch "## $Version") {
     Write-Output "[ERRO] A versao lida 'v$Version' nao coincide com nenhuma secao no CHANGELOG.md."
     exit 1
@@ -356,11 +364,11 @@ if ($gh_release_exists) {
     }
     $gh_release_status = "$tag_name [APROVADA]"
 } else {
-    # Extrair notas do CHANGELOG.md para a versao corrente
+    # Extrair notas do CHANGELOG.md para a versao corrente garantindo leitura UTF-8 explicita
     $release_notes = ""
     $changelog_file = Join-Path $source_dir "CHANGELOG.md"
     if (Test-Path $changelog_file) {
-        $changelog_content = Get-Content $changelog_file -Raw
+        $changelog_content = Get-Content $changelog_file -Raw -Encoding UTF8
         $pattern = "(?s)(?m)^##\s*$($Version.Replace('.', '\.'))\b.*?\r?\n(.*?)(?=\r?\n##\s+|\Z)"
         if ($changelog_content -match $pattern) {
             $release_notes = $Matches[1].Trim()
@@ -372,7 +380,32 @@ if ($gh_release_exists) {
     }
 
     $notes_file = [System.IO.Path]::GetTempFileName()
-    [System.IO.File]::WriteAllText($notes_file, $release_notes, [System.Text.Encoding]::UTF8)
+    
+    try {
+        # Gravar com codificacao UTF-8 explicita
+        [System.IO.File]::WriteAllText($notes_file, $release_notes, [System.Text.Encoding]::UTF8)
+
+        # Validacao de integridade Round-Trip em UTF-8 (compativel com Windows PowerShell 5.1 e PS 7+)
+        $temp_content = Get-Content $notes_file -Raw -Encoding UTF8
+        
+        $notes_norm = $release_notes.Replace("`r`n", "`n").Trim()
+        $temp_norm = $temp_content.Replace("`r`n", "`n").Trim()
+
+        if ($notes_norm -ne $temp_norm) {
+            Write-Output "[ERRO] Falha de integridade: A codificacao UTF-8 das Release Notes foi corrompida na serializacao."
+            if (Test-Path $notes_file) {
+                Remove-Item $notes_file -Force
+            }
+            exit 1
+        }
+    }
+    catch {
+        Write-Output "[ERRO] Ocorreu uma excecao na gravacao ou validacao do arquivo temporario das Release Notes: $_"
+        if (Test-Path $notes_file) {
+            Remove-Item $notes_file -Force
+        }
+        exit 1
+    }
 
     Write-Output "[INFO] Criando GitHub Release oficial para a tag '$tag_name'..."
     # Criar a release e capturar a URL gerada pelo comando gh utilizando as notas extraidas do CHANGELOG.md
@@ -409,35 +442,26 @@ $ErrorActionPreference = "Continue"
 
 Write-Output "[INFO] Adicionando arquivos e relatorios oficiais de release ao Git..."
 
-$static_to_add = @(
-    "gerador-posts-gemini.php",
-    "includes/Core/PluginBootstrap.php",
-    "README.md",
-    "CHANGELOG.md",
-    "PIPELINE.md",
-    ".gitignore",
-    "build/.gitkeep",
-    "scripts/prepare_release.ps1",
-    "scripts/build_release.ps1",
-    "scripts/publish_release.ps1",
-    ".agents/rules/project-governance.md",
-    ".agents/rules/documentation.md"
-)
-
-# Adicionar arquivos estaticos
-foreach ($static in $static_to_add) {
-    $allowed_abs = Join-Path $source_dir ($static.Replace("/", [System.IO.Path]::DirectorySeparatorChar))
-    if (Test-Path $allowed_abs) {
-        Execute-ExternalCommand -Command "git" -Arguments @("add", $allowed_abs) -AllowedExitCodes @(0, 1, 128)
+# Capturar e adicionar de forma dinamica todos os arquivos modificados/novos que pertençam as categorias permitidas
+$status_raw = Execute-ExternalCommand -Command "git" -Arguments @("status", "--porcelain") -CaptureOutput $true
+if ($status_raw) {
+    $lines = @()
+    if ($status_raw -is [array]) {
+        $lines = $status_raw
+    } else {
+        $lines = $status_raw.Split("`n") | Where-Object { $_.Trim() }
     }
-}
-
-# Adicionar dinamicamente relatorios e manuais da pasta docs/releases/
-$releases_dir = Join-Path $source_dir "docs\releases"
-if (Test-Path $releases_dir) {
-    $md_files = Get-ChildItem -Path $releases_dir -Filter "*.md"
-    foreach ($file in $md_files) {
-        Execute-ExternalCommand -Command "git" -Arguments @("add", $file.FullName) -AllowedExitCodes @(0, 1, 128)
+    foreach ($line in $lines) {
+        $file_path = $line.Substring(3).Trim()
+        $file_path_norm = $file_path.Replace("\", "/")
+        
+        if (Test-IsFileAllowed -FilePathNorm $file_path_norm) {
+            $allowed_abs = Join-Path $source_dir ($file_path_norm.Replace("/", [System.IO.Path]::DirectorySeparatorChar))
+            if (Test-Path $allowed_abs) {
+                Execute-ExternalCommand -Command "git" -Arguments @("add", $allowed_abs) -AllowedExitCodes @(0, 1, 128)
+                Write-Output "[OK] Indexado para release: $file_path_norm"
+            }
+        }
     }
 }
 
