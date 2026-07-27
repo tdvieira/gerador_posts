@@ -19,29 +19,43 @@ O Pipeline Oficial de Release é composto por três scripts especializados sob o
     *   Remove arquivos de desenvolvimento (.gitkeep, etc.).
     *   Compacta o diretório de forma manual garantindo separadores `/` nos metadados do ZIP.
     *   Executa uma validação estrutural rígida de 8 critérios do WordPress. Se falhar, remove o ZIP.
-3.  **`publish_release.ps1` (Publicação e Hardening):**
+3.  **`publish_release.ps1` (Publicação, Limpeza e Hardening):**
     *   Audita a árvore de trabalho (`git status --porcelain`).
     *   Comita as alterações administrativas permitidas de release.
     *   Gera a tag semântica local (`vMAJOR.MINOR.PATCH`).
     *   Sincroniza commits e tags com a branch remota `main`.
     *   Publica a release no GitHub anexando o ZIP através do GitHub CLI (`gh`).
-    *   Executa limpeza pós-release e a validação final da consistência de produção.
+    *   **Limpeza e Git Add Automático:** Remove resíduos da pasta `temp_zip/`. Adiciona automaticamente com `git add` todos os relatórios e manuais de documentação gerados pelo próprio pipeline. Caso reste qualquer alteração estranha (código pendente), a publicação é cancelada por segurança.
+    *   Executa a validação final da consistência de produção.
 
 ---
 
-## 🚦 2. Interface de Console (ASCII Padrão)
+## ⚙️ 2. Instalação do GitHub CLI (gh)
+
+Para automatizar totalmente a publicação de releases e o upload do pacote ZIP no GitHub, o utilitário GitHub CLI deve estar configurado no sistema.
+
+*   **Windows (Método Oficial Principal):**
+    ```powershell
+    winget install --id GitHub.cli
+    ```
+*   **Instalação Manual (Alternativa):** Baixe o instalador executável diretamente em [cli.github.com](https://cli.github.com/).
+*   **Autenticação:** Após instalar, execute `gh auth login` no terminal e autentique sua conta.
+
+---
+
+## 🚦 3. Interface de Console (ASCII Padrão)
 
 Para assegurar compatibilidade universal com qualquer plataforma e sistema operacional (PowerShell, CMD, bash, GitHub Actions, Linux/macOS), toda a interface de console foi construída em codificação de texto ASCII sem dependência de caracteres Unicode complexos ou acentuações.
 
 As mensagens do terminal seguem obrigatoriamente a seguinte taxonomia:
 *   `[OK]`: Sucesso em testes, validações e ações do Git.
 *   `[INFO]`: Mensagens explicativas e de progresso operacional.
-*   `[WARN]`: Avisos secundários de atenção (ex: GitHub CLI não instalado).
+*   `[WARN]`: Avisos secundários de atenção.
 *   `[ERRO]`: Erros de integridade que abortam imediatamente a execução.
 
 ---
 
-## 📊 3. Painéis de Fechamento do Pipeline
+## 📊 4. Painéis de Fechamento do Pipeline
 
 Ao concluir a publicação com sucesso, o console exibe dois painéis estruturados de resumo e validação:
 

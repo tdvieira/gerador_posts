@@ -56,7 +56,7 @@ O fluxo de publicação de novas versões segue obrigatoriamente a sequência de
     ```powershell
     powershell -ExecutionPolicy Bypass -File scripts/publish_release.ps1
     ```
-    O script faz auditoria da working tree, comita alterações permitidas, cria a tag local, sincroniza main/tags, cria a release no GitHub, limpa os resíduos da pasta `temp_zip/` se existir e valida o status final em ASCII, gerando o painel de 10 chaves e o quadro consolidado "PIPELINE OFICIAL DE RELEASE FINALIZADO".
+    O script audita a working tree, comita as alterações permitidas e executa o tagging e push. Ao final do processo, os relatórios e documentos administrativos gerados pelo próprio pipeline de release (ex: manuais e logs técnicos) são automaticamente adicionados com `git add` ao Git, garantindo que a Working Tree permaneça limpa. Alterações externas de código não permitidas continuam bloqueando a publicação por razões de segurança.
 
 ---
 
@@ -118,6 +118,19 @@ git tag -a v1.0.0 -m "Release oficial v1.0.0"
 # 4. Enviar os commits e a Tag para o repositório remoto oficial
 git push origin master --tags
 ```
+
+---
+
+## ⚙️ Instalação do GitHub CLI (gh)
+
+Para automatizar totalmente a publicação de releases e o upload do pacote ZIP no GitHub a partir do console local de desenvolvimento, o utilitário GitHub CLI deve estar configurado no sistema.
+
+*   **Windows (Método Oficial Principal):**
+    ```powershell
+    winget install --id GitHub.cli
+    ```
+*   **Instalação Manual (Alternativa):** Download do instalador executável diretamente em: https://cli.github.com/
+*   **Autenticação:** Após instalar, execute `gh auth login` no terminal e autentique sua conta.
 
 ---
 

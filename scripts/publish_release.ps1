@@ -6,7 +6,7 @@
     1. Validar o repositorio Git, branch main e integridade do ZIP de build.
     2. Identificar a versao ativa no plugin.
     3. Commitar as alteracoes de release, criar a tag semantica local e sincronizar com o origin.
-    4. Criar a release correspondente no GitHub anexando o ZIP atraves do GitHub CLI (gh).
+    4. Criar a release correspondente no GitHub diante do GitHub CLI (gh).
 #>
 
 $ErrorActionPreference = "Stop"
@@ -39,7 +39,7 @@ if ($branch -ne "main") {
 }
 Write-Output "[OK] Branch main ativa e selecionada."
 
-# 4. Identificar a versao ativa a partir do cabecalho do arquivo principal
+# 4. Identificar a versao activa a partir do cabecalho do arquivo principal
 $main_file = Join-Path $source_dir "gerador-posts-gemini.php"
 if (!(Test-Path $main_file)) {
     Write-Output "[ERRO] Arquivo principal do plugin nao encontrado em: $main_file"
@@ -93,6 +93,7 @@ $allowed_files = @(
     "docs/releases/release_publish_pipeline_hardening_report.md",
     "docs/releases/release_pipeline_console_standardization_v2_report.md",
     "docs/releases/release_pipeline_final_polish_report.md",
+    "docs/releases/release_pipeline_working_tree_cleanup_report.md",
     "build/gerador-posts-gemini.zip",
     "build/.gitkeep",
     ".gitignore",
@@ -221,19 +222,49 @@ if ($gh_installed) {
     Write-Output "[WARN] Utilitario GitHub CLI (gh) nao esta disponivel no PATH. Etapa remota suspensa."
 }
 
-# 12. Limpeza automatica da Working Tree
+# 12. Limpeza automatica da Working Tree e Git Add de relatorios gerados
 Write-Output "[INFO] Executando limpeza automatica de residuos temporarios..."
 $local_temp_zip = Join-Path $source_dir "temp_zip"
 if (Test-Path $local_temp_zip) {
     Remove-Item $local_temp_zip -Recurse -Force
 }
 
-$post_status = git status --porcelain
-if ($post_status) {
-    Write-Output "[ERRO] A arvore de trabalho contem arquivos inesperados pos-publicacao:"
-    foreach ($line in $post_status) {
-        Write-Output " - $line"
+# Adicionar ao Git de forma automatica os arquivos previstos e relatorios gerados pelo pipeline de release
+Write-Output "[INFO] Adicionando arquivos e relatorios oficiais de release ao Git..."
+foreach ($allowed in $allowed_files) {
+    $allowed_abs = Join-Path $source_dir ($allowed.Replace("/", [System.IO.Path]::DirectorySeparatorChar))
+    if (Test-Path $allowed_abs) {
+        git add $allowed_abs 2>$null
     }
+}
+
+# Verificar se a working tree contem qualquer alteracao externa nao permitida
+$post_status = git status --porcelain
+$invalid_post_changes = @()
+if ($post_status) {
+    foreach ($line in $post_status) {
+        $file_path = $line.Substring(3).Trim()
+        $file_path_norm = $file_path.Replace("\", "/")
+        
+        $is_allowed = $false
+        foreach ($allowed in $allowed_files) {
+            if ($file_path_norm -eq $allowed) {
+                $is_allowed = $true
+                break
+            }
+        }
+        if (!$is_allowed) {
+            $invalid_post_changes += $file_path_norm
+        }
+    }
+}
+
+if ($invalid_post_changes.Count -gt 0) {
+    Write-Output "[ERRO] A arvore de trabalho contem alteracoes externas nao pertencentes ao processo oficial de release:"
+    foreach ($inv in $invalid_post_changes) {
+        Write-Output " - $inv"
+    }
+    Write-Output "A publicacao foi interrompida devido a inconsistencias na arvore de trabalho."
     exit 1
 }
 Write-Output "[OK] Arvore de trabalho limpa."
