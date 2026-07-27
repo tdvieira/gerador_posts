@@ -356,9 +356,32 @@ if ($gh_release_exists) {
     }
     $gh_release_status = "$tag_name [APROVADA]"
 } else {
+    # Extrair notas do CHANGELOG.md para a versao corrente
+    $release_notes = ""
+    $changelog_file = Join-Path $source_dir "CHANGELOG.md"
+    if (Test-Path $changelog_file) {
+        $changelog_content = Get-Content $changelog_file -Raw
+        $pattern = "(?s)(?m)^##\s*$($Version.Replace('.', '\.'))\b.*?\r?\n(.*?)(?=\r?\n##\s+|\Z)"
+        if ($changelog_content -match $pattern) {
+            $release_notes = $Matches[1].Trim()
+        }
+    }
+
+    if (!$release_notes) {
+        $release_notes = "Release oficial v$Version"
+    }
+
+    $notes_file = [System.IO.Path]::GetTempFileName()
+    [System.IO.File]::WriteAllText($notes_file, $release_notes, [System.Text.Encoding]::UTF8)
+
     Write-Output "[INFO] Criando GitHub Release oficial para a tag '$tag_name'..."
-    # Criar a release e capturar a URL gerada pelo comando gh
-    $release_url_raw = Execute-ExternalCommand -Command "gh" -Arguments @("release", "create", $tag_name, $zip_path, "--title", $tag_name, "--notes", "Release oficial v$Version") -CaptureOutput $true
+    # Criar a release e capturar a URL gerada pelo comando gh utilizando as notas extraidas do CHANGELOG.md
+    $release_url_raw = Execute-ExternalCommand -Command "gh" -Arguments @("release", "create", $tag_name, $zip_path, "--title", $tag_name, "--notes-file", $notes_file) -CaptureOutput $true
+    
+    if (Test-Path $notes_file) {
+        Remove-Item $notes_file -Force
+    }
+
     if ($LASTEXITCODE -eq 0) {
         if ($release_url_raw) { $release_url = $release_url_raw.Trim() }
         Write-Output "[OK] Release publicada com sucesso."

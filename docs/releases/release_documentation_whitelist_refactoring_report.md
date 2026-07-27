@@ -109,3 +109,10 @@ A segurança e a rigidez do pipeline foram integralmente mantidas:
 - **Validações Preservadas:** A validação estrutural do arquivo ZIP do WordPress, a checagem em duas etapas do GitHub CLI (`gh auth status` e `gh repo view`), a consistência do `CHANGELOG.md` com a versão do plugin e a validação de tags locais e remotas permanecem ativas e inalteradas.
 - **Sem Alteração de Versionamento:** Nenhuma regra de versionamento do repositório ou tagging semântico foi modificada.
 - **Sem Alteração nos Demais Scripts:** Os scripts `prepare_release.ps1` e `build_release.ps1` não sofreram nenhuma alteração.
+
+---
+
+## Resumo para Release
+### Melhorias
+- Substituição da whitelist estática de documentações de release por uma identificação dinâmica baseada em wildcards (docs/releases/*.md).
+- Implementação de rastreamento e commit automático para todos os relatórios de release, reduzindo o custo de manutenção futura do pipeline.

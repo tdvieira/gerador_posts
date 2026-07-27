@@ -121,14 +121,13 @@ Para manter a organização do código-fonte e do acervo documental de desenvolv
 O pacote oficial de distribuição e instalação do plugin é gerado em **`build/gerador-posts-gemini.zip`**.
 
 ### Pipeline Oficial de Release
-A preparação, empacotamento e publicação de novas versões são estruturados e automatizados por meio do Pipeline Oficial de Release, composto pelas seguintes etapas obrigatórias. Toda a interface de console e blocos de status utilizam estritamente codificação de texto ASCII sem dependência de caracteres Unicode (usando marcadores `[OK]`, `[INFO]`, `[WARN]` e `[ERRO]`), finalizando o fluxo com o painel unificado "RESUMO FINAL DA RELEASE" de 10 chaves de status alinhadas:
+A preparação, empacotamento e publicação de novas versões são estruturados por meio do Pipeline Oficial de Release, composto por apenas **duas etapas operacionais ativas** conduzidas pelo operador. O script de build (`build_release.ps1`) permanece exclusivamente como uma ferramenta técnica complementar de manutenção e reconstrução manual do ZIP, sem compor o fluxo ativo direto. Toda a interface de console e blocos de status utilizam estritamente codificação de texto ASCII sem dependência de caracteres Unicode (usando marcadores `[OK]`, `[INFO]`, `[WARN]` e `[ERRO]`), finalizando o fluxo com o painel unificado "RESUMO FINAL DA RELEASE" de 10 chaves de status alinhadas:
 
-*   **Passo 1: Preparação:** Sincronização de metadados de versão e validação técnica:
+*   **Etapa 1: Prepare Release (Preparação e Build):** Sincronização automatizada de metadados de versão, varredura de consistência, extração dinâmica das seções `## Resumo para Release` de todos os relatórios técnicos correntes em `docs/releases/*.md` para consolidar o `CHANGELOG.md` sem textos fixos, seguido pelo empacotamento automático e validação estrutural obrigatória do arquivo ZIP:
     ```powershell
     powershell -ExecutionPolicy Bypass -File scripts/prepare_release.ps1 -Version X.Y.Z
     ```
-*   **Passo 2: Build e Validação (Automático):** Disparado de forma transparente pelo script de preparação, gerando o pacote em `build/gerador-posts-gemini.zip` e executando de forma imediata a validação estrutural obrigatória (.NET) de integridade técnica do pacote para o WordPress.
-*   **Passo 3: Publicação:** Publicação automatizada de commits e tags Git com upload do ZIP no GitHub, limpeza de resíduos temporários e exibição do resumo consolidado. Toda a documentação e relatórios técnicos oficiais gerados pelo pipeline de release (localizados sob o padrão dinâmico `docs/releases/*.md`) são identificados dinamicamente por padrões e adicionados automaticamente com `git add` no commit de publicação, enquanto alterações em qualquer outro arquivo de código ou desenvolvimento alheio continuam bloqueando o deploy por segurança:
+*   **Etapa 2: Publish Release (Publicação e Sincronização):** Publicação automatizada de commits e tags Git, envio para o repositório remoto, criação da release no GitHub com upload do ZIP de produção e publicação automática das Release Notes (extraídas do `CHANGELOG.md` para a versão corrente como única fonte de verdade). Adiciona dinamicamente com `git add` todos os documentos de release à Working Tree limpa, bloqueando o deploy em caso de qualquer alteração de código externa inesperada:
     ```powershell
     powershell -ExecutionPolicy Bypass -File scripts/publish_release.ps1
     ```

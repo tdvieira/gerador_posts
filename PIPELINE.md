@@ -4,29 +4,36 @@ Este manual descreve a arquitetura, o fluxo de execução e a interface de conso
 
 ---
 
-## 🛠️ 1. Arquitetura do Pipeline
+## 🛠️ 1. Arquitetura e Fluxo do Pipeline
 
-O Pipeline Oficial de Release é composto por três scripts especializados sob o princípio da responsabilidade única (SRP), garantindo reprodutibilidade completa e segurança absoluta:
+O processo operacional de publicação do ecossistema é consolidado em **duas etapas ativas** de execução, garantindo automação total e segurança em ambiente de produção:
 
-1.  **`prepare_release.ps1` (Preparação):**
-    *   Valida a sintaxe da versão (`MAJOR.MINOR.PATCH`).
+```mermaid
+graph LR
+    A[Desenvolvimento] --> B[Prepare Release<br>prepare_release.ps1]
+    B --> C[Publish Release<br>publish_release.ps1]
+    C --> D[GitHub Release<br>Produção & ZIP]
+```
+
+### Fluxo Operacional Oficial (2 Etapas)
+
+1.  **Etapa 1: `prepare_release.ps1` (Preparação e Build):**
+    *   Valida sintaxe da versão (`MAJOR.MINOR.PATCH`).
     *   Substitui de forma automática a versão corrente no cabeçalho do plugin, em constantes e em arquivos operacionais.
-    *   Insere a nova seção correspondente no `CHANGELOG.md`.
-    *   Varre referências antigas para impedir metadados inconsistentes.
-    *   Dispara o build-script automaticamente.
-2.  **`build_release.ps1` (Build e Validação Estrutural):**
-    *   Limpa temporários e copia os arquivos produtivos do plugin para um espelho isolado.
-    *   Remove arquivos de desenvolvimento (.gitkeep, etc.).
-    *   Compacta o diretório de forma manual garantindo separadores `/` nos metadados do ZIP.
-    *   Executa uma validação estrutural rígida de 8 critérios do WordPress. Se falhar, remove o ZIP.
-3.  **`publish_release.ps1` (Publicação, Limpeza e Hardening):**
+    *   **Consolidação de Release Notes Dinâmica:** Varre de forma automática a pasta `docs/releases/` identificando todos os relatórios técnicos oficiais que mencionam a versão corrente. Extrai o conteúdo contido sob a seção `## Resumo para Release` de cada relatório, agrupa e categoriza os itens (Novidades, Melhorias, Correções, Segurança, Documentação, Arquitetura), eliminando duplicidades, e insere esse bloco consolidado no `CHANGELOG.md` sem textos fixos.
+    *   Invoca automaticamente o script de build para geração e validação estrutural do ZIP.
+2.  **Etapa 2: `publish_release.ps1` (Publicação e Sincronização):**
     *   Audita a árvore de trabalho (`git status --porcelain`).
-    *   Comita as alterações administrativas permitidas de release.
+    *   Comita as alterações administrativas permitidas e as documentações geradas.
     *   Gera a tag semântica local (`vMAJOR.MINOR.PATCH`).
     *   Sincroniza commits e tags com a branch remota `main`.
-    *   Publica a release no GitHub anexando o ZIP através do GitHub CLI (`gh`).
-    *   **Limpeza e Git Add Dinâmico:** Remove resíduos da pasta `temp_zip/`. Identifica dinamicamente por padrões (wildcards) todos os arquivos Markdown oficiais em `docs/releases/*.md` (relatórios técnicos, manuais operacionais) e os adiciona automaticamente com `git add` no commit de publicação, sem necessidade de atualizar o script. Caso reste qualquer alteração em arquivos externos ao processo de release ou código de desenvolvimento alheio, a publicação é cancelada por segurança.
-    *   Executa a validação final da consistência de produção.
+    *   **Release Notes Unificada (Single Source of Truth):** Localiza e extrai de forma 100% automatizada a seção correspondente da versão no `CHANGELOG.md` e a utiliza como corpo da release gerada no GitHub via GitHub CLI (`gh`), mantendo a sincronização entre os relatórios locais, o CHANGELOG.md e o painel remoto.
+    *   Efetua o upload do ZIP validado.
+    *   Executa testes de integridade de pós-deploy.
+
+### Ferramenta Técnica Complementar
+
+*   **`build_release.ps1` (Build e Validação Estrutural):** Permanecerá exclusivamente como uma ferramenta técnica complementar do pipeline, de uso restrito a manutenção, testes estruturais locais ou reconstruções pontuais manuais do pacote ZIP. Ele **não** faz parte das etapas ativas operacionais executadas pelo operador, que dispara exclusivamente `prepare_release.ps1` e depois `publish_release.ps1`.
 
 ---
 

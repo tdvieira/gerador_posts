@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.3 - 2026-07-27
+
+### Melhorias
+- Substituição da whitelist estática de documentações de release por uma identificação dinâmica baseada em wildcards (docs/releases/*.md).
+- Implementação de rastreamento e commit automático para todos os relatórios de release, reduzindo o custo de manutenção futura do pipeline.
+
 ## 2.0.2 - 2026-07-27
 
 ### Adicionado

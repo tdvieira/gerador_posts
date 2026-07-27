@@ -78,3 +78,11 @@ Confirmamos a ausência completa de qualquer instrução temporária de depuraç
 ## 6. Confirmação de Ausência de Impacto Funcional
 
 A correção afeta estritamente a camada de baixo nível de montagem e transmissão da linha de comando para subprocessos do Windows. Nenhuma regra de versionamento, lógica de negócios de commit, estrutura de tags, ou integridade do empacotamento ZIP foi modificada. Todas as validações obrigatórias de segurança do WordPress, consistência de versão e integridade de credenciais do GitHub CLI permanecem ativas e inalteradas.
+
+---
+
+## Resumo para Release
+### Correções
+- Correção do erro de interpretação de argumentos do Git (pathspec) no script de deploy através de serialização robusta compatível com CommandLineToArgvW.
+- Garantia de que mensagens de commit multilinha e com espaços sejam transmitidas de forma íntegra.
+

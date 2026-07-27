@@ -28,8 +28,14 @@ Este documento estabelece as regras normativas permanentes para redação, estru
 
 ---
 
-## 📂 Requisitos Estruturais de Manuais
+## 📂 Requisitos Estruturais de Manuais e Relatórios
 
-Guias operacionais e manuais de engenharia devem conter obrigatoriamente:
-*   A seção **"Quando consultar este documento?"** no topo, definindo as condições práticas em que a leitura do arquivo é recomendada.
-*   A seção **"Documentos relacionados"** no rodapé, contendo links de navegação para as demais referências técnicas pertinentes do Manual do Desenvolvedor.
+1.  **Guias e Manuais:** Guias operacionais e manuais de engenharia devem conter obrigatoriamente:
+    *   A seção **"Quando consultar este documento?"** no topo, definindo as condições práticas em que a leitura do arquivo é recomendada.
+    *   A seção **"Documentos relacionados"** no rodapé, contendo links de navegação para as demais referências técnicas pertinentes do Manual do Desenvolvedor.
+
+2.  **Relatórios Técnicos de Release:** Todo relatório técnico gerado no ecossistema do Pipeline Oficial de Release (sob `docs/releases/`) deve incluir obrigatoriamente a seção **"## Resumo para Release"**:
+    *   Essa seção destina-se exclusivamente à consolidação automática de Release Notes públicas no `CHANGELOG.md` e GitHub Releases.
+    *   Deve conter itens de alteração organizados em listas Markdown simples (`- Item`).
+    *   Deve usar títulos de nível 3 para subdividir as alterações em categorias funcionais (ex: `### Novidades`, `### Melhorias`, `### Correções`, `### Segurança`, `### Documentação`, `### Arquitetura`).
+

@@ -80,8 +80,76 @@ if ($Version -eq $old_version) {
             if ($file_rel -eq "CHANGELOG.md") {
                 if ($content -notmatch "## $Version") {
                     $today = Get-Date -Format "yyyy-MM-dd"
+                    
+                    # 1. Coletar e consolidar Release Notes a partir dos relatorios da release corrente
+                    $categories = @{}
+                    $releases_dir = Join-Path $source_dir "docs\releases"
+                    if (Test-Path $releases_dir) {
+                        $md_files = Get-ChildItem -Path $releases_dir -Filter "*.md"
+                        foreach ($file in $md_files) {
+                            $file_content = Get-Content $file.FullName -Raw
+                            # Filtrar relatorios que mencionam a versao corrente (ex: "v2.0.5" ou "2.0.5")
+                            if ($file_content -match "\b(v)?$($Version.Replace('.', '\.'))\b") {
+                                # Extrair a secao ## Resumo para Release
+                                $pattern = "(?s)##\s*Resumo para Release\r?\n(.*?)(?=\r?\n#+|$)"
+                                if ($file_content -match $pattern) {
+                                    $section_content = $Matches[1].Trim()
+                                    $lines = $section_content -split "`r?`n"
+                                    $current_category = $null
+
+                                    foreach ($line in $lines) {
+                                        $trimmed = $line.Trim()
+                                        if ($trimmed -match "^###\s+(.+)$") {
+                                            $current_category = $Matches[1].Trim()
+                                            if (!$categories.ContainsKey($current_category)) {
+                                                $categories[$current_category] = [System.Collections.Generic.List[string]]::new()
+                                            }
+                                        } elseif ($trimmed -match "^[-*+]\s+(.+)$" -and $current_category) {
+                                            $item = $Matches[1].Trim()
+                                            if (!$categories[$current_category].Contains($item)) {
+                                                $categories[$current_category].Add($item)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    # 2. Consolidar os blocos organizando em ordem logica
+                    $consolidated_text = ""
+                    $ordered_categories = @("Novidades", "Melhorias", "Correções", "Segurança", "Documentação", "Arquitetura")
+
+                    foreach ($cat in $ordered_categories) {
+                        if ($categories.ContainsKey($cat) -and $categories[$cat].Count -gt 0) {
+                            $consolidated_text += "### $cat`r`n"
+                            foreach ($item in $categories[$cat]) {
+                                $consolidated_text += "- $item`r`n"
+                            }
+                            $consolidated_text += "`r`n"
+                        }
+                    }
+
+                    # Inserir quaisquer categorias extras encontradas
+                    foreach ($cat in $categories.Keys) {
+                        if ($ordered_categories -notcontains $cat -and $categories[$cat].Count -gt 0) {
+                            $consolidated_text += "### $cat`r`n"
+                            foreach ($item in $categories[$cat]) {
+                                $consolidated_text += "- $item`r`n"
+                            }
+                            $consolidated_text += "`r`n"
+                        }
+                    }
+
+                    $consolidated_text = $consolidated_text.Trim()
+
+                    # Fallback caso nenhum resumo de release tenha sido extraido
+                    if (!$consolidated_text) {
+                        $consolidated_text = "### Documentação`r`n- Atualização e consolidação da Release v$Version."
+                    }
+
                     $target_section = "## $old_version"
-                    $new_section = "## $Version - $today`r`n`r`n### Adicionado`r`n- Atualizacao e consolidacao da Release v$Version.`r`n`r`n## $old_version"
+                    $new_section = "## $Version - $today`r`n`r`n$consolidated_text`r`n`r`n## $old_version"
                     $content = $content.Replace($target_section, $new_section)
                 }
             } else {

@@ -79,3 +79,12 @@ A arquitetura geral do ecossistema de release permanece estritamente intacta. As
 Todas as edições operacionais foram integradas ao script principal e as documentações técnicas correspondentes ([README.md](../../README.md), [PIPELINE.md](../../PIPELINE.md) e [RELEASE_PROCESS.md](./RELEASE_PROCESS.md)) foram atualizadas com sucesso para refletir este novo padrão. As simulações lógicas comprovam a estabilidade das checagens baseadas em exit codes e a adequada recuperação de diagnósticos em cenários de erro simulados.
 
 O Pipeline Oficial de Release atinge, portanto, o seu estado definitivo de refinamento de comandos externos.
+
+---
+
+## Resumo para Release
+### Melhorias
+- Padronização definitiva de comandos externos (Git e GitHub CLI) no script de publicação baseando-se estritamente em códigos de retorno ($LASTEXITCODE).
+- Remoção completa de redirecionamentos de saída 2>&1 do script de deploy.
+- Exibição das mensagens de erro originais geradas por subprocessos em caso de falhas.
+

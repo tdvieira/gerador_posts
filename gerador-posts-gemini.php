@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Gerador de Posts
  * Description: Cria posts estruturados seguindo o padrão do blog, gera até 2 imagens 16:9, vincula SEO (Rank Math) e agenda a publicação em lote.
- * Version: 2.0.2
+ * Version: 2.0.3
  * Author: Thiago Vieira
  * Text Domain: gerador-posts-gemini
  */

@@ -1,4 +1,4 @@
-# Processo de Release (Release Process Manual) — v2.0.2
+# Processo de Release (Release Process Manual) — v2.0.3
 
 Este manual descreve o procedimento operacional padrão para geração, validação e publicação de novas versões do plugin **Gerador de Posts (IA)**. Ele estabelece os critérios de segurança e governança para empacotamento da distribuição.
 
@@ -32,31 +32,32 @@ graph TD
 
 ## 🛠️ Pipeline Oficial de Release
 
-O processo de empacotamento e publicação do plugin é estruturado no **Pipeline Oficial de Release**, composto por três scripts especializados sob o princípio da responsabilidade única (SRP), garantindo reprodutibilidade completa e auditável:
+O processo de empacotamento e publicação do plugin é estruturado no **Pipeline Oficial de Release**, composto por duas etapas operacionais ativas sob o princípio da responsabilidade única (SRP), garantindo reprodutibilidade completa, auditável e automatizada:
 
-| Script | Responsabilidade | Status de Homologação |
+| Etapa Operacional | Script Correspondente | Responsabilidade Principal |
 | :--- | :--- | :--- |
-| **`prepare_release.ps1`** | Preparação da Release, validações sintáticas, sincronização automática de metadados, atualização da documentação técnica e coordenação do build | **Implementado e Homologado** |
-| **`build_release.ps1`** | Geração e validação estrutural automatizada do pacote ZIP oficial em `build/gerador-posts-gemini.zip` | **Implementado e Homologado** |
-| **`publish_release.ps1`** | Publicação da Release: commit automático, tagging Git semântico, git push origin remoto e upload do ZIP via GitHub CLI | **Implementado e Homologado** |
+| **Etapa 1: Prepare Release** | `prepare_release.ps1` | Sincronização de versão, consolidação automática das Release Notes dos relatórios em `docs/releases/*.md` para o `CHANGELOG.md` sem textos fixos, geração do pacote ZIP e validação estrutural do WordPress |
+| **Etapa 2: Publish Release** | `publish_release.ps1` | Auditoria da Working tree, commit e tagging Git, sincronização com o origin, publicação automática da GitHub Release extraindo o corpo do `CHANGELOG.md` (Single Source of Truth) e upload do ZIP |
+
+> [!NOTE]
+> **Ferramenta Técnica de Manutenção:** O script `build_release.ps1` permanece exclusivamente como uma ferramenta técnica complementar do pipeline, destinada à reconstrução manual ou testes isolados do pacote ZIP. Ele **não** compõe o fluxo de execução ativo do operador.
 
 > [!IMPORTANT]
-> O Pipeline Oficial de Release do projeto está definitivamente concluído e homologado em todas as suas três etapas obrigatórias. Suas saídas de console e blocos de status utilizam estritamente codificação de texto ASCII sem dependência de caracteres Unicode (usando marcadores `[OK]`, `[INFO]`, `[WARN]` e `[ERRO]`). O final do script `publish_release.ps1` gera obrigatoriamente o painel "RESUMO FINAL DA RELEASE" contendo 10 chaves de status alinhadas de forma uniforme. Nenhum pacote compactado poderá seguir para o script `publish_release.ps1` sem passar e ser aprovado com sucesso absoluto pela validação estrutural automatizada interna do script `build_release.ps1`.
+> O Pipeline Oficial de Release do projeto é composto por apenas **duas etapas ativas obrigatórias** (Prepare e Publish). Suas saídas de console e blocos de status utilizam estritamente codificação de texto ASCII sem dependência de caracteres Unicode (usando marcadores `[OK]`, `[INFO]`, `[WARN]` e `[ERRO]`). O final do script `publish_release.ps1` gera obrigatoriamente o painel "RESUMO FINAL DA RELEASE" contendo 10 chaves de status alinhadas de forma uniforme.
 
 ### Fluxo Operacional de Execução
-O fluxo de publicação de novas versões segue obrigatoriamente a sequência de três passos:
+O fluxo de publicação de novas versões segue obrigatoriamente a sequência de duas etapas:
 
-1.  **Passo 1: Preparação:** O operador dispara ativamente o script informando a versão desejada:
+1.  **Etapa 1: Prepare Release (Preparação e Build):** O operador dispara ativamente o script informando a versão desejada:
     ```powershell
     powershell -ExecutionPolicy Bypass -File scripts/prepare_release.ps1 -Version X.Y.Z
     ```
-    O script valida o padrão `MAJOR.MINOR.PATCH`, atualiza todos os arquivos necessários (cabeçalho, Bootstrap, README, CHANGELOG e este manual) e verifica consistências pós-build.
-2.  **Passo 2: Build e Validação Automatizados:** Ao fim de sua validação, o `prepare_release.ps1` invoca e coordena automaticamente o `scripts/build_release.ps1`. O build-script gera o pacote compactado em `build/gerador-posts-gemini.zip` e executa de forma imediata a auditoria estrutural do ZIP (.NET). Qualquer inconformidade ou corrupção de estrutura deleta o ZIP e aborta o pipeline para impedir deploys corrompidos.
-3.  **Passo 3: Publicação:** O operador executa o script de publicação para efetivar o commit, tag, push e deploy remoto da release:
+    O script valida o padrão de versão, atualiza os arquivos estruturais do plugin, lê dinamicamente as seções `## Resumo para Release` de todos os relatórios da versão corrente no diretório `docs/releases/`, consolida as informações por categoria no `CHANGELOG.md` (Single Source of Truth) e aciona automaticamente a geração e a auditoria estrutural (.NET) do ZIP.
+2.  **Etapa 2: Publish Release (Publicação e Sincronização):** O operador executa o script de publicação para efetivar a release:
     ```powershell
     powershell -ExecutionPolicy Bypass -File scripts/publish_release.ps1
     ```
-    O script audita a working tree, comita as alterações permitidas e executa o tagging e push. Ao final do processo, os relatórios e documentos administrativos gerados pelo próprio pipeline de release (localizados sob o padrão dinâmico `docs/releases/*.md`, como manuais operacionais e relatórios técnicos) são identificados dinamicamente e adicionados automaticamente com `git add` ao Git, garantindo que a Working Tree permaneça limpa para o encerramento do processo. Alterações externas de código não permitidas continuam bloqueando a publicação por razões de segurança.
+    O script audita a Working Tree, cria o commit e a tag correspondentes, sincroniza as alterações com a branch remota principal, localiza e extrai de forma automática o bloco da versão corrente no `CHANGELOG.md` e o utiliza integralmente como as Release Notes da release criada no GitHub via GitHub CLI (`gh`), fazendo o upload do pacote ZIP e concluindo o processo de forma unificada. Adiciona dinamicamente com `git add` todos os documentos de release à Working Tree limpa, bloqueando o deploy em caso de qualquer alteração de código externa inesperada.
 
 ---
 
@@ -148,8 +149,8 @@ Para automatizar totalmente a publicação de releases e o upload do pacote ZIP 
 2.  **Upload e Publicação Remota:**
     *   Como tokens locais de CLI (`gh`) podem expirar ou não estar configurados no terminal de desenvolvimento local, a publicação final deve ser complementada manualmente no painel do GitHub.
     *   Acesse: `https://github.com/tdvie/gerador_posts/releases/new`.
-    *   Selecione a tag **`v2.0.2`** criada via Git.
-    *   Configure o título como `v2.0.2` e copie as notas de alteração do `CHANGELOG.md` na descrição.
+    *   Selecione a tag **`v2.0.3`** criada via Git.
+    *   Configure o título como `v2.0.3` e copie as notas de alteração do `CHANGELOG.md` na descrição.
     *   Arraste e anexe o arquivo compactado `build/gerador-posts-gemini.zip` gerado.
     *   Clique em **Publish release**.
 
