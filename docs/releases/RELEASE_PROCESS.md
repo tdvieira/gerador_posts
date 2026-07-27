@@ -41,7 +41,7 @@ O processo de empacotamento e publicação do plugin é estruturado no **Pipelin
 | **`publish_release.ps1`** | Publicação da Release: commit automático, tagging Git semântico, git push origin remoto e upload do ZIP via GitHub CLI | **Implementado e Homologado** |
 
 > [!IMPORTANT]
-> O Pipeline Oficial de Release do projeto está definitivamente concluído em todas as suas três etapas obrigatórias. Nenhum pacote compactado poderá seguir para o script `publish_release.ps1` sem passar e ser aprovado com sucesso absoluto pela validação estrutural automatizada interna do script `build_release.ps1`.
+> O Pipeline Oficial de Release do projeto está definitivamente concluído e homologado em todas as suas três etapas obrigatórias. Suas saídas de console e blocos de status utilizam estritamente codificação de texto ASCII sem dependência de caracteres Unicode (usando marcadores `[OK]`, `[INFO]`, `[WARN]` e `[ERRO]`). O final do script `publish_release.ps1` gera obrigatoriamente o painel "RESUMO FINAL DA RELEASE" contendo 10 chaves de status alinhadas de forma uniforme. Nenhum pacote compactado poderá seguir para o script `publish_release.ps1` sem passar e ser aprovado com sucesso absoluto pela validação estrutural automatizada interna do script `build_release.ps1`.
 
 ### Fluxo Operacional de Execução
 O fluxo de publicação de novas versões segue obrigatoriamente a sequência de três passos:

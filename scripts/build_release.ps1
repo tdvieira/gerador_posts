@@ -1,5 +1,10 @@
 $ErrorActionPreference = "Stop"
 
+# Configurar console para compatibilidade ASCII nativa
+[Console]::OutputEncoding = [System.Text.Encoding]::ASCII
+$OutputEncoding = [System.Text.Encoding]::ASCII
+cmd /c chcp 437 > $null
+
 # Determinar os diretorios raiz dinamicamente para garantir a portabilidade do build
 $script_dir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $source_dir = Split-Path -Parent $script_dir
@@ -52,8 +57,7 @@ if (Test-Path $zip_dest) {
         try {
             Remove-Item $zip_dest -Force
         } catch {
-            # Caso continue travado por outra sessão, tenta gerar com nome alternativo e substituir
-            Write-Output "Aviso: ZIP principal travado. Tentando liberação alternativa..."
+            Write-Output "[WARN] ZIP principal travado. Tentando liberacao alternativa..."
         }
     }
 }
@@ -94,7 +98,7 @@ try {
 Remove-Item $temp_dir -Recurse -Force
 
 # Iniciar validação estrutural do ZIP gerado para WordPress (Segurança de Release)
-Write-Output "Iniciando validação estrutural do pacote ZIP gerado..."
+Write-Output "[INFO] Iniciando validacao estrutural do pacote ZIP gerado..."
 $zip = $null
 try {
     # 1 e 2. Abrir o arquivo ZIP utilizando exclusivamente a API System.IO.Compression.ZipFile
@@ -106,7 +110,7 @@ try {
     if (Test-Path $zip_dest) {
         Remove-Item $zip_dest -Force
     }
-    Write-Error "Erro de Validação Estrutural: O pacote ZIP gerado está corrompido ou é inválido."
+    Write-Output "[ERRO] Erro de Validacao Estrutural: O pacote ZIP gerado esta corrompido ou e invalido."
     exit 1
 }
 
@@ -126,7 +130,7 @@ foreach ($entry in $zip.Entries) {
         [System.GC]::Collect()
         [System.GC]::WaitForPendingFinalizers()
         if (Test-Path $zip_dest) { Remove-Item $zip_dest -Force }
-        Write-Error "Erro de Validação Estrutural: O ZIP contém o arquivo solto '$entry_path' fora da pasta raiz '$root_folder'."
+        Write-Output "[ERRO] Erro de Validacao Estrutural: O ZIP contem o arquivo solto '$entry_path' fora da pasta raiz '$root_folder'."
         exit 1
     }
     
@@ -157,7 +161,7 @@ for ($i = 0; $i -lt $bytes.Length - 4; $i++) {
             $name = [System.Text.Encoding]::UTF8.GetString($name_bytes)
             if ($name.Contains("\")) {
                 if (Test-Path $zip_dest) { Remove-Item $zip_dest -Force }
-                Write-Error "Erro de Validação Estrutural: O arquivo '$name' gravado fisicamente no ZIP contém barras invertidas '\'."
+                Write-Output "[ERRO] Erro de Validacao Estrutural: O arquivo '$name' gravado fisicamente no ZIP contem barras invertidas '\'."
                 exit 1
             }
         }
@@ -167,28 +171,28 @@ for ($i = 0; $i -lt $bytes.Length - 4; $i++) {
 # Verificar resultados de buscas das pastas e arquivos essenciais
 if (!$has_main_file) {
     if (Test-Path $zip_dest) { Remove-Item $zip_dest -Force }
-    Write-Error "Erro de Validação Estrutural: O arquivo principal 'gerador-posts-gemini/gerador-posts-gemini.php' não foi encontrado no ZIP."
+    Write-Output "[ERRO] Erro de Validacao Estrutural: O arquivo principal 'gerador-posts-gemini/gerador-posts-gemini.php' nao foi encontrado no ZIP."
     exit 1
 }
 
 if (!$has_assets) {
     if (Test-Path $zip_dest) { Remove-Item $zip_dest -Force }
-    Write-Error "Erro de Validação Estrutural: O diretório obrigatório 'assets/' não está presente sob a pasta do plugin."
+    Write-Output "[ERRO] Erro de Validacao Estrutural: O diretorio obrigatorio 'assets/' nao esta presente sob a pasta do plugin."
     exit 1
 }
 
 if (!$has_includes) {
     if (Test-Path $zip_dest) { Remove-Item $zip_dest -Force }
-    Write-Error "Erro de Validação Estrutural: O diretório obrigatório 'includes/' não está presente sob a pasta do plugin."
+    Write-Output "[ERRO] Erro de Validacao Estrutural: O diretorio obrigatorio 'includes/' nao esta presente sob a pasta do plugin."
     exit 1
 }
 
 if (!$has_vendor) {
     if (Test-Path $zip_dest) { Remove-Item $zip_dest -Force }
-    Write-Error "Erro de Validação Estrutural: O diretório obrigatório 'vendor/' não está presente sob a pasta do plugin."
+    Write-Output "[ERRO] Erro de Validacao Estrutural: O diretorio obrigatorio 'vendor/' nao esta presente sob a pasta do plugin."
     exit 1
 }
 
 # Exibir resumo em caso de sucesso
-Write-Output "Validação estrutural do pacote WordPress: APROVADA. ZIP íntegro. Estrutura compatível com WordPress. Arquivo principal localizado corretamente. Separadores internos validados. Pacote liberado para publicação."
-Write-Output "Release ZIP construído com sucesso em: $zip_dest"
+Write-Output "[OK] Validacao estrutural do pacote WordPress: APROVADA. ZIP integro. Estrutura compativel com WordPress. Arquivo principal localizado corretamente. Separadores internos validados. Pacote liberado para publicacao."
+Write-Output "[OK] Release ZIP construido com sucesso em: $zip_dest"

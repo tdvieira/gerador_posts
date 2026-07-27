@@ -121,7 +121,7 @@ Para manter a organização do código-fonte e do acervo documental de desenvolv
 O pacote oficial de distribuição e instalação do plugin é gerado em **`build/gerador-posts-gemini.zip`**.
 
 ### Pipeline Oficial de Release
-A preparação, empacotamento e publicação de novas versões são estruturados e automatizados por meio do Pipeline Oficial de Release, composto pelas seguintes etapas obrigatórias:
+A preparação, empacotamento e publicação de novas versões são estruturados e automatizados por meio do Pipeline Oficial de Release, composto pelas seguintes etapas obrigatórias. Toda a interface de console e blocos de status utilizam estritamente codificação de texto ASCII sem dependência de caracteres Unicode (usando marcadores `[OK]`, `[INFO]`, `[WARN]` e `[ERRO]`), finalizando o fluxo com o painel unificado "RESUMO FINAL DA RELEASE" de 10 chaves de status alinhadas:
 
 *   **Passo 1: Preparação:** Sincronização de metadados de versão e validação técnica:
     ```powershell
