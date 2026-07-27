@@ -57,7 +57,8 @@ $updated_files = @()
 
 # Se a versao informada for igual a atual, pular atualizacao de arquivos
 if ($Version -eq $old_version) {
-    Write-Output "[WARN] A versao informada '$Version' ja e a versao corrente do plugin."
+    Write-Output "[INFO] Versao $Version ja sincronizada."
+    Write-Output "[INFO] Nenhuma atualizacao de versionamento necessaria."
 } else {
     Write-Output "[INFO] Iniciando preparacao de versao: v$old_version -> v$Version"
 

@@ -56,6 +56,7 @@ O fluxo de publicação de novas versões segue obrigatoriamente a sequência de
     ```powershell
     powershell -ExecutionPolicy Bypass -File scripts/publish_release.ps1
     ```
+    O script faz auditoria da working tree, comita alterações permitidas, cria a tag local, sincroniza main/tags, cria a release no GitHub, limpa os resíduos da pasta `temp_zip/` se existir e valida o status final em ASCII, gerando o painel de 10 chaves e o quadro consolidado "PIPELINE OFICIAL DE RELEASE FINALIZADO".
 
 ---
 

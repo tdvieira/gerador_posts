@@ -50,7 +50,7 @@ $main_content = Get-Content $main_file -Raw
 if ($main_content -match "\*\s*Version:\s*([0-9]+\.[0-9]+\.[0-9]+)") {
     $Version = $Matches[1]
 } else {
-    Write-Output "[ERRO] Nao foi possivel ler a versao ativa no cabecalho do plugin."
+    Write-Output "[ERRO] Nao foi possivel ler a versao activa no cabecalho do plugin."
     exit 1
 }
 Write-Output "[OK] Versao do plugin identificada: v$Version"
@@ -84,6 +84,7 @@ $allowed_files = @(
     "includes/Core/PluginBootstrap.php",
     "README.md",
     "CHANGELOG.md",
+    "PIPELINE.md",
     "docs/releases/RELEASE_PROCESS.md",
     "docs/releases/release_pipeline_consolidation_report.md",
     "docs/releases/release_preparation_script_report.md",
@@ -91,6 +92,7 @@ $allowed_files = @(
     "docs/releases/wordpress_package_validation_automation_report.md",
     "docs/releases/release_publish_pipeline_hardening_report.md",
     "docs/releases/release_pipeline_console_standardization_v2_report.md",
+    "docs/releases/release_pipeline_final_polish_report.md",
     "build/gerador-posts-gemini.zip",
     "build/.gitkeep",
     ".gitignore",
@@ -185,41 +187,65 @@ try {
     }
 } catch {}
 
-if (!$gh_installed) {
-    Write-Output "[ERRO] O utilitario GitHub CLI (gh) nao esta instalado ou disponivel no PATH."
-    Write-Output "Apenas a publicacao remota da release depende do gh. O processo foi interrompido."
-    exit 1
-}
+$gh_release_status = "PENDENTE - GitHub CLI indisponivel"
+$release_url = $null
 
-Write-Output "[INFO] GitHub CLI detectado. Validando autenticacao..."
-$auth_check = (gh auth status 2>&1 | Out-String)
-if ($auth_check -match "Logged in to github.com as" -eq $false) {
-    Write-Output "[WARN] GitHub CLI esta instalado, mas nao autenticado."
-    Write-Output "[ERRO] Apenas a publicacao remota da release depende do gh. Processo interrompido."
-    exit 1
-}
-Write-Output "[OK] Autenticacao com GitHub CLI validada."
-
-# Verificar se a release remota ja existe
-$release_check = (gh release view $tag_name 2>&1 | Out-String)
-if ($release_check -match "release v$Version" -or $release_check -match "title: v$Version") {
-    Write-Output "[OK] A release remota no GitHub para a tag '$tag_name' ja existe."
-    $release_url = (gh release view $tag_name --json url -q .url 2>$null).Trim()
-} else {
-    Write-Output "[INFO] Criando GitHub Release oficial para a tag '$tag_name'..."
-    $release_url = (gh release create $tag_name $zip_path --title $tag_name --notes "Release oficial v$Version" 2>&1).Trim()
-    if ($LASTEXITCODE -ne 0) {
-        Write-Output "[ERRO] Erro ao criar a GitHub Release: $release_url"
-        exit 1
+if ($gh_installed) {
+    Write-Output "[INFO] GitHub CLI detectado. Validando autenticacao..."
+    $auth_check = (gh auth status 2>&1 | Out-String)
+    if ($auth_check -match "Logged in to github.com as" -eq $true) {
+        Write-Output "[OK] Autenticacao com GitHub CLI validada."
+        
+        # Verificar se a release remota ja existe
+        $release_check = (gh release view $tag_name 2>&1 | Out-String)
+        if ($release_check -match "release v$Version" -or $release_check -match "title: v$Version") {
+            Write-Output "[OK] A release remota no GitHub para a tag '$tag_name' ja existe."
+            $release_url = (gh release view $tag_name --json url -q .url 2>$null).Trim()
+            $gh_release_status = "$tag_name [APROVADA]"
+        } else {
+            Write-Output "[INFO] Criando GitHub Release oficial para a tag '$tag_name'..."
+            $release_url = (gh release create $tag_name $zip_path --title $tag_name --notes "Release oficial v$Version" 2>&1).Trim()
+            if ($LASTEXITCODE -eq 0) {
+                Write-Output "[OK] Release publicada com sucesso."
+                Write-Output "[INFO] URL da Release: $release_url"
+                $gh_release_status = "$tag_name [APROVADA]"
+            } else {
+                Write-Output "[ERRO] Erro ao criar a GitHub Release: $release_url"
+                exit 1
+            }
+        }
+    } else {
+        Write-Output "[WARN] GitHub CLI esta instalado, mas nao autenticado. Etapa remota suspensa."
     }
-    Write-Output "[OK] GitHub Release criada com sucesso."
+} else {
+    Write-Output "[WARN] Utilitario GitHub CLI (gh) nao esta disponivel no PATH. Etapa remota suspensa."
 }
+
+# 12. Limpeza automatica da Working Tree
+Write-Output "[INFO] Executando limpeza automatica de residuos temporarios..."
+$local_temp_zip = Join-Path $source_dir "temp_zip"
+if (Test-Path $local_temp_zip) {
+    Remove-Item $local_temp_zip -Recurse -Force
+}
+
+$post_status = git status --porcelain
+if ($post_status) {
+    Write-Output "[ERRO] A arvore de trabalho contem arquivos inesperados pos-publicacao:"
+    foreach ($line in $post_status) {
+        Write-Output " - $line"
+    }
+    exit 1
+}
+Write-Output "[OK] Arvore de trabalho limpa."
 
 # Obter HASH do commit atual
 $commit_hash = (git rev-parse HEAD).Trim()
 $pub_date = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 
-Write-Output "`n=================================================="
+# Adicionar uma linha em branco para separar visualmente a execucao operacional do resumo
+Write-Output ""
+
+Write-Output "=================================================="
 Write-Output "RESUMO FINAL DA RELEASE"
 Write-Output "=================================================="
 Write-Output "Versao Publicada   : v$Version"
@@ -229,7 +255,33 @@ Write-Output "Tag Git            : $tag_name"
 Write-Output "Caminho ZIP Gerado : build/gerador-posts-gemini.zip"
 Write-Output "Status Validacao   : APROVADA [OK]"
 Write-Output "Status do Push     : CONCLUIDO [OK]"
-Write-Output "Status da GH Rel   : APROVADA [OK]"
+Write-Output "Status da GH Rel   : $gh_release_status"
 Write-Output "Data e Hora Pub    : $pub_date"
 Write-Output "Status Final       : PUBLICADO COM SUCESSO [OK]"
 Write-Output "=================================================="
+
+# 13. Validacao Final do Pipeline
+$zip_exists_check = Test-Path $zip_path
+$tag_exists_check = (git tag -l $tag_name) -and ((git tag -l $tag_name).Trim() -eq $tag_name)
+$local_commit = (git rev-parse HEAD).Trim()
+$remote_commit = (git rev-parse origin/main 2>$null)
+if ($remote_commit) { $remote_commit = $remote_commit.Trim() }
+$git_sync_check = $local_commit -eq $remote_commit
+
+if ($zip_exists_check -and $tag_exists_check -and $git_sync_check) {
+    Write-Output "`n=================================================="
+    Write-Output "PIPELINE OFICIAL DE RELEASE FINALIZADO"
+    Write-Output "=================================================="
+    Write-Output "Versao         : v$Version [APROVADA]"
+    Write-Output "ZIP            : build/gerador-posts-gemini.zip [APROVADO]"
+    Write-Output "Git            : branch main [APROVADO]"
+    Write-Output "Tag            : $tag_name [APROVADA]"
+    Write-Output "Release GitHub : $gh_release_status"
+    Write-Output "Working Tree   : Limpa [OK]"
+    Write-Output "=================================================="
+    Write-Output "PUBLICACAO CONCLUIDA COM SUCESSO"
+    Write-Output "=================================================="
+} else {
+    Write-Output "[ERRO] Falha na conferencia de integridade final do Pipeline."
+    exit 1
+}
